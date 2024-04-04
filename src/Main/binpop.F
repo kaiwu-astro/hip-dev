@@ -496,6 +496,15 @@ C in binaries occupy positions 1,2,....2*NBIN).
    64         FORMAT (/,12X,'SINGLE MASSES (1-10):  ',10F9.5,/)
           END IF
       END IF
+
+*       FFD Sept2023: if condition for N-body and other codes to load Nbody units WITHOUT scaling
+      IF (KZ(22).EQ.2) THEN
+          N = N + NBIN
+          NZERO = N
+          NTOT = N
+          BODYM = ZMASS/FLOAT(N-nmass)
+      END IF
+*
 *
       Npk = N - pkmerge
       NZEROpk = Npk

@@ -12,13 +12,6 @@
       LOGICAL LREADN,LREADP,LREADF
       NAMELIST /INDATA/ ALPHAS, BODY1, BODYN, NBIN0, NHI0, ZMET,
      &     EPOCH0,DTPLOT
-* sse parameters for hrdiag, mlwind
-      integer ecflag,wdflag,nsflag,psflag,mdflag,bhflag,kmech,idum
-      real*8 mch,mxns0,mxns1,nwind,bwind,flbv,disp,ecsig,
-     *       wdsig1,wdsig2,wdkmax,vvfac,zmetal
-      common/sse/ecflag,wdflag,nsflag,psflag,mdflag,bhflag,
-     *       kmech,idum,mch,mxns0,mxns1,nwind,bwind,flbv,disp,ecsig,
-     *       wdsig1,wdsig2,wdkmax,vvfac,zmetal
 *
 #ifdef PARALLEL
 #define MPIINIT 1
@@ -26,8 +19,8 @@
 #define MPIINIT 0
 #endif
 *
-*       Set provisional total mass (rescaled in routine SCALE).
-      ZMASS = FLOAT(N)
+*       Set provisional total mass (rescaled in routine SCALE). FFD Sept2023: nmass to remove them from calcul.
+      ZMASS = FLOAT(N-nmass)
 *
 *       Check option for reading initial conditions from input file.
       if(rank.eq.0)then
@@ -123,6 +116,7 @@
       IF (IIC.NE.0) WRITE (6, '("DATA: invalid Namelist format")')
 *        READ (5,*) ALPHAS, BODY1, BODYN, NBIN0, NHI0, ZMET, EPOCH0, 
 *    &        DTPLOT
+
 *     Check whether number of N + NBIN0 are larger than NMAX-2
          if (N+NBIN0.GE.NMAX-2) THEN
             print*,'FATAL ERROR: N+NBIN0 ',N+NBIN0,' > NMAX-2',NMAX-2
@@ -178,7 +172,7 @@
 *       Metallicity should be set to minimum value.
       IF(ZMET.EQ.0.D0) ZMET = 1.D-4
       IF(ZMET.GT.0.03) ZMET = 0.03
-      zmetal = ZMET
+
 *       Generate a power-law mass function with exponent ALPHAS.
       ALPHA1 = ALPHAS - 1.0
       FM1 = 1.0/BODY1**ALPHA1
@@ -194,11 +188,11 @@
    20 CONTINUE
 *
 *       Scale the masses to <M> = 1 for now and set consistent total mass.
-   30 ZMBAR1 = ZMASS/FLOAT(N)
+   30 ZMBAR1 = ZMASS/FLOAT(N-nmass)
       DO 35 I = 1,N
           BODY(I) = BODY(I)/ZMBAR1
    35 CONTINUE
-      ZMASS = FLOAT(N)
+      ZMASS = FLOAT(N-nmass)
 *
 *       Set up initial coordinates & velocities (uniform or Plummer model).
    40 IF (KZ(22).LE.1) THEN

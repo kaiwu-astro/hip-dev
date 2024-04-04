@@ -13,6 +13,7 @@
      &                  B_EPOCH1(KMAX), B_EPOCH2(KMAX),
 *    &                  B_ZMETA1(KMAX), B_ZMETA2(KMAX),
 *    &                  NB_NPOPU1(KMAX), NB_NPOPU2(KMAX),
+     &                  B_NOMASS(KMAX),
      &                  B_XR1(KMAX), B_XR2(KMAX), B_XR3(KMAX),
      &                  B_VR1(KMAX), B_VR2(KMAX), B_VR3(KMAX),
      &                  B_FR1(KMAX), B_FR2(KMAX), B_FR3(KMAX),
@@ -32,7 +33,8 @@
       REAL*4 B_STEP, B_STEPR, B_T0, B_T0R, B_ASPN1, B_ASPN2
       REAL*4 B_TEV1, B_TEV2, B_TEV01, B_TEV02, B_EPOCH1, B_EPOCH2
 *     REAL*4 B_ZMETA1, B_ZMETA2
-*     INTEGER NB_NPOPU1, NB_NPOPU2
+*     INTEGER NB_NPOPU1, NB_NPOPU2,
+      INTEGER B_NOMASS
       REAL*4 B_XR1, B_XR2, B_XR3, B_VR1, B_VR2, B_VR3
       REAL*4 B_FR1, B_FR2, B_FR3, B_FDR1, B_FDR2, B_FDR3
       REAL*4 B_D21R, B_D22R, B_D23R, B_D31R, B_D32R, B_D33R

@@ -23,7 +23,7 @@
       integer inum(maxpe),ista(maxpe)
       data iisize/4/
 #endif
-      COMMON/NAMES/  NTOT,NPAIRS,NTTOT,IA(NA)
+      COMMON/NAMES/  NTOT,NMASS,NPAIRS,NTTOT,IA(NA)
       COMMON/COUNTS/ B(NB)
       COMMON/PARAMS/ C(NC)
       COMMON/STARS/  D(ND)
@@ -45,7 +45,7 @@
      &               BODY0(NMAX),EPOCH(NMAX),SPIN(NMAX),XSTAR(NMAX),
      &               ZLMSTY(NMAX),FIDOT(3,NMAX),D0(3,NMAX),
      &               FRDOT(3,NMAX),D0R(3,NMAX),KSTAR(NMAX),NAME(NMAX),
-     &               IMINR(NMAX),LIST(LMAX,NMAX),ASPN(NMAX)
+     &               IMINR(NMAX),LIST(LMAX,NMAX),ASPN(NMAX),NOMASS(NMAX)
 *
       COMMON/PAIRS/  U(4,KMAX),U0(4,KMAX),UDOT(4,KMAX),FU(4,KMAX),
      &               FUDOT(4,KMAX),FUDOT2(4,KMAX),FUDOT3(4,KMAX),
@@ -97,18 +97,21 @@
             NPARTMP(8) = MCL
             NPARTMP(9) = NCMAX
             NPARTMP(10) = NTMAX
-*
-            PRINT*,' W MYDUMP J,II,NPARTMP=',J,II,NPARTMP,
-     *             ' ntot,npairs,nttot=',ntot,npairs,nttot,
-     *      ' sum na+...+ns=',NA+NB+NC+ND+NE+NG+NL+NM+NO+NP+NQ+NS
-            PRINT*,' NA-NS=',NA,NB,NC,ND,NE,NG,NL,NM,NO,NP,NQ,NS
+
+
+*FFDSept2023: added nomass for right ntot 
+*            PRINT*,' W MYDUMP J,II,NPARTMP=',J,II,NPARTMP,
+*     *             '
+*     *             ntot,npairs,nomass,nttot,nomass=',ntot,npairs,nttot,nomass
+*     *      ' sum na+...+ns=',NA+NB+NC+ND+NE+NG+NL+NM+NO+NP+NQ+NS
+*            PRINT*,' NA-NS=',NA,NB,NC,ND,NE,NG,NL,NM,NO,NP,NQ,NS
 *
             WRITE (J) NPARTMP
 *     
-            WRITE (J) ntot,npairs,nttot,ia,b,c,d,e,g,l,m,o,p,q,s
+            WRITE (J) ntot,npairs,nomass,nttot,ia,b,c,d,e,g,l,m,o,p,q,s
          END IF
        end if
-*
+* FFD Sept 2023 NOMASS data are saved here, however nomass is not saved!
         if(rank.eq.0)then
          IF(MOD(J-201,NCOMM).EQ.0)THEN
         WRITE (J) ((x(k,i),k=1,3),i=1,ntot),((x0(k,i),k=1,3),i=1,ntot),
@@ -129,6 +132,8 @@
      *   (kstar(i),i=1,ntot),(iminr(i),i=1,ntot),(name(i),i=1,ntot)
 *
         write (J) (aspn(i),i=1,ntot)
+*
+        write (J) (nomass(i),i=1,nmass)
 *
         write (J) ((u(k,i),k=1,4),i=1,npairs),((u0(k,i),k=1,4),i=1,
      *    npairs),((udot(k,i),k=1,4),i=1,npairs),((fu(k,i),k=1,4),i=1,
@@ -219,12 +224,12 @@
               call abort()
            END IF
            
-           READ (J) ntot,npairs,nttot,ia,b,c,d,e,g,l,m,o,p,q,s
+           READ (J) ntot,npairs,nomass,nttot,ia,b,c,d,e,g,l,m,o,p,q,s
 
-            PRINT*,' R MYDUMP J,II,NPARTMP=',J,II,NPARTMP,
-     *             ' ntot,npairs,nttot=',ntot,npairs,nttot,
-     *      ' sum na+...+ns=',NA+NB+NC+ND+NE+NG+NL+NM+NO+NP+NQ+NS
-            PRINT*,' NA-NS=',NA,NB,NC,ND,NE,NG,NL,NM,NO,NP,NQ,NS
+*            PRINT*,' R MYDUMP J,II,NPARTMP=',J,II,NPARTMP,
+*     *             ' ntot,npairs,nttot=',ntot,npairs,nttot,nomass
+*     *      ' sum na+...+ns=',NA+NB+NC+ND+NE+NG+NL+NM+NO+NP+NQ+NS
+*            PRINT*,' NA-NS=',NA,NB,NC,ND,NE,NG,NL,NM,NO,NP,NQ,NS
 
         end if
 *
@@ -266,6 +271,8 @@
      *   (kstar(i),i=1,ntot),(iminr(i),i=1,ntot),(name(i),i=1,ntot)
 *
         read (J) (aspn(i),i=1,ntot)
+*
+        read (J) (nomass(i),i=1,nmass)
 *
         read (J) ((u(k,i),k=1,4),i=1,npairs),((u0(k,i),k=1,4),i=1,
      *    npairs),((udot(k,i),k=1,4),i=1,npairs),((fu(k,i),k=1,4),i=1,
@@ -314,9 +321,10 @@
         call cputim(tt999)
         if(rank.eq.0)ttbar = ttbar + (tt999-tt998)*60.
         if(rank.eq.0)ibarcount=ibarcount+1
-*
+* called nomass here (FFD Sept2023)
          CALL MPI_BCAST(ntot,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
          CALL MPI_BCAST(npairs,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+         CALL MPI_BCAST(nomass,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
          CALL MPI_BCAST(nttot,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
          CALL MPI_BCAST(IA(1),NA,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
          CALL MPI_BCAST(B(1),NB,MPI_REAL4,0,MPI_COMM_WORLD,ierr)
@@ -368,6 +376,7 @@
        CALL MPI_BCAST(IMINR(1),NTOT,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
 *
        CALL MPI_BCAST(ASPN(1),NTOT,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
+*
 *
        CALL MPI_BCAST(SF(1,1),7*NPAIRS,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
        CALL MPI_BCAST(U(1,1),4*NPAIRS,MPI_REAL8,0,MPI_COMM_WORLD,ierr)
@@ -461,3 +470,4 @@
       RETURN
 *
       END
+

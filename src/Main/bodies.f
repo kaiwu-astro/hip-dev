@@ -15,7 +15,7 @@
       SIMAX = 0.01*TCR
 *
       DO 40 I = IFIRST,NTOT
-          IF (STEP(I).GT.SIMAX) GO TO 40
+          IF (nomass(i).eq.1.or.STEP(I).GT.SIMAX) GO TO 40
           JMIN = 0
           RJMIN2 = RSCALE**2
           NNB = LIST(1,I)
@@ -31,14 +31,14 @@
                   JMIN = J
               END IF
    30     CONTINUE
-          IF (JMIN.LE.I) GO TO 40
+          IF (nomass(jmin).eq.0.AND.JMIN.LE.I) GO TO 40
           RIJMIN = SQRT(RJMIN2)
           VR2 = (XDOT(1,I) - XDOT(1,JMIN))**2 +
      &          (XDOT(2,I) - XDOT(2,JMIN))**2 +
      &          (XDOT(3,I) - XDOT(3,JMIN))**2
           EREL = 0.5*VR2 - (BODY(I) + BODY(JMIN))/RIJMIN
 *       Only print significant binaries.
-          IF (EREL.GT.-0.1*ECLOSE) GO TO 40
+          IF (nomass(jmin).eq.0.AND.EREL.GT.-0.1*ECLOSE) GO TO 40
           SEMI = -0.5*(BODY(I) + BODY(JMIN))/EREL
           ZN = SQRT((BODY(I) + BODY(JMIN))/SEMI**3)
           RDOT = (X(1,I) - X(1,JMIN))*(XDOT(1,I) - XDOT(1,JMIN)) +
@@ -64,7 +64,7 @@
           I = 2*JPAIR - 1
           ICM = N + JPAIR
           JMIN = I + 1
-          IF (BODY(I).LE.0.0D0) GO TO 60
+          IF (BODY(I).LE.0.0D0.and.nomass(i).eq.0) GO TO 60
           EB = BODY(I)*BODY(JMIN)*H(JPAIR)/BODY(ICM)
           SEMI = -0.5*(BODY(I) + BODY(JMIN))/H(JPAIR)
           ZN = SQRT((BODY(I) + BODY(JMIN))/SEMI**3)

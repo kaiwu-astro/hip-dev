@@ -114,7 +114,7 @@ c$$$      end if
 ***** Note: if dt=0 let x=x0, xdot=x0dot to avoid inconsistent x and xdot
 *****       In different ranks------------------------------------------*      
 *      IF ((DT.EQ.0.0D0.AND.IPHASE.LT.4).OR.BODY(I).EQ.0.0D0) GO TO 35
-      IF (BODY(I).EQ.0.0D0) GO TO 35
+      IF (BODY(I).EQ.0.0D0.and.nomass(i).eq.0) GO TO 35
       IF (DT.EQ.0.0D0.AND.IPHASE.LT.4) THEN
          IF (X(1,I).EQ.X0(1,I).AND.XDOT(1,I).EQ.X0DOT(1,I)) go to 35
          X(1,I) = X0(1,I)

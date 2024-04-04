@@ -623,6 +623,9 @@ cc          WRITE (h5_step_name, *), h5_step
          CALL HDF5_write_real_vector_as_dset(h5_group_id,
      &        '038 EPOCH', S_EPOCH, N_SINGLE, 1, h5_dset_ids(38),
      &        original_vec_len,finalize)
+        CALL HDF5_write_integer_vector_as_dset(h5_group_id,
+     &        '039 NOMASS', S_NOMASS, N_SINGLE, 1, h5_dset_ids(39),
+     &        original_vec_len,finalize)
 *        CALL HDF5_write_real_vector_as_dset(h5_group_id,
 *    &        '039 ZMETA', S_ZMETA, N_SINGLE, 1, h5_dset_ids(39),
 *    &        original_vec_len,finalize)
@@ -666,7 +669,8 @@ cc          WRITE (h5_step_name, *), h5_step
      &      S_F3(1:N_SINGLE), S_FD1(1:N_SINGLE), S_FD2(1:N_SINGLE),
      &      S_FD3(1:N_SINGLE), S_STEP(1:N_SINGLE), S_STEPR(1:N_SINGLE),
      &      S_T0(1:N_SINGLE), S_T0R(1:N_SINGLE), S_ASPN(1:N_SINGLE),
-     &      S_TEV(1:N_SINGLE), S_TEV0(1:N_SINGLE), S_EPOCH(1:N_SINGLE)
+     &      S_TEV(1:N_SINGLE), S_TEV0(1:N_SINGLE), S_EPOCH(1:N_SINGLE),
+     &      S_NOMASS(1:N_SINGLE)
 *    &      ,S_ZMETA(1:N_SINGLE),NS_NPOPU(1:N_SINGLE)
        IF(KRED.EQ.0) THEN
            WRITE (40)
@@ -691,6 +695,7 @@ cc          WRITE (h5_step_name, *), h5_step
      &            S_FD1(K),S_FD2(K), S_FD3(K),
      &            S_STEP(K), S_STEPR(K), S_T0(K), S_T0R(K), S_ASPN(K),
      &            S_TEV(K), S_TEV0(K), S_EPOCH(K),
+     &            S_NOMASS(K),
 *    &            S_ZMETA(K),NS_NPOPU(K),
      &            S_RS(K), S_L(K), S_TE(K),
      &            S_MC(K), S_RC(K), NS_KW(K)
@@ -706,6 +711,7 @@ cc          WRITE (h5_step_name, *), h5_step
      &            S_D31(K), S_D32(K), S_D33(K),
      &            S_STEP(K), S_STEPR(K), S_T0(K), S_T0R(K), S_ASPN(K),
      &            S_TEV(K), S_TEV0(K), S_EPOCH(K),
+     &            S_NOMASS(K),
 *    &            S_ZMETA(K),NS_NPOPU(K),
      &            S_RS(K), S_L(K), S_TE(K),
      &            S_MC(K), S_RC(K), NS_KW(K)
@@ -733,7 +739,8 @@ cc          WRITE (h5_step_name, *), h5_step
      &            S_D21(K), S_D22(K), S_D23(K),
      &            S_D31(K), S_D32(K), S_D33(K),
      &            S_STEP(K), S_STEPR(K), S_T0(K), S_T0R(K), S_ASPN(K),
-     &            S_TEV(K), S_TEV0(K), S_EPOCH(K)
+     &            S_TEV(K), S_TEV0(K), S_EPOCH(K),
+     &            S_NOMASS(K)
 *    &           ,S_ZMETA(K),NS_NPOPU(K)
             END DO
           END IF
@@ -1077,6 +1084,9 @@ cc          WRITE (h5_step_name, *), h5_step
       CALL HDF5_write_real_vector_as_dset(h5_group_id,
      &        '171 EPOCH2', B_EPOCH2, N_BINARY, 1, h5_dset_ids(134), 
      &        original_vec_len,finalize)
+      CALL HDF5_write_integer_vector_as_dset(h5_group_id,
+     &        '172 NOMASS', B_NOMASS, N_BINARY, 1, h5_dset_ids(135),
+     &        original_vec_len,finalize)
 *     CALL HDF5_write_real_vector_as_dset(h5_group_id,
 *    &        '172 ZMETA1', B_ZMETA1, N_BINARY, 1, h5_dset_ids(135),
 *    &        original_vec_len,finalize)
@@ -1160,6 +1170,7 @@ cc          WRITE (h5_step_name, *), h5_step
      &         B_ASPN1(K), B_ASPN2(K), 
      &         B_TEV1(K), B_TEV2(K), B_TEV01(K),
      &         B_TEV02(K),B_EPOCH1(K),B_EPOCH2(K),
+     &         B_NOMASS(K),
 *     &        B_ZMETA1(K),B_ZMETA2(K),
 *     &        NB_NPOPU1(K),NB_NPOPU2(K),
      &         B_XR1(K), B_XR2(K), B_XR3(K), 
@@ -1186,6 +1197,7 @@ cc          WRITE (h5_step_name, *), h5_step
      &         B_ASPN1(K), B_ASPN2(K), 
      &         B_TEV1(K), B_TEV2(K), B_TEV01(K),
      &         B_TEV02(K),B_EPOCH1(K),B_EPOCH2(K),
+     &         B_NOMASS(K),
 *     &        B_ZMETA1(K),B_ZMETA2(K),
 *     &        NB_NPOPU1(K),NB_NPOPU2(K),
      &         B_XR1(K), B_XR2(K), B_XR3(K),
@@ -1216,6 +1228,7 @@ cc          WRITE (h5_step_name, *), h5_step
      &          B_ASPN1(K), B_ASPN2(K), 
      &          B_TEV1(K), B_TEV2(K), B_TEV01(K),
      &          B_TEV02(K),B_EPOCH1(K),B_EPOCH2(K),
+     &          B_NOMASS(K),
 *     &        B_ZMETA1(K),B_ZMETA2(K),
 *     &        NB_NPOPU1(K),NB_NPOPU2(K),
      &          B_XR1(K), B_XR2(K), B_XR3(K), 
@@ -1236,6 +1249,7 @@ cc          WRITE (h5_step_name, *), h5_step
      &          B_ASPN1(K), B_ASPN2(K), 
      &          B_TEV1(K), B_TEV2(K), B_TEV01(K),
      &          B_TEV02(K),B_EPOCH1(K),B_EPOCH2(K),
+     &          B_NOMASS(K),
 *     &        B_ZMETA1(K),B_ZMETA2(K),
 *     &        NB_NPOPU1(K),NB_NPOPU2(K),
      &          B_XR1(K), B_XR2(K), B_XR3(K),

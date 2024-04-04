@@ -111,6 +111,7 @@
                 KSTAR(I) = 14
                 TEV(I) = 1.D10
 *     For the time being here only option for random spin.
+*     ADDED EXCEPTION for massless particles via flag closing the if and go to next particle Francesco Flammini Dotti 18/07/2022
                 ASPN(I) = RAND()
              END IF
              M1 = BODY(I)*ZMBAR
@@ -120,6 +121,9 @@
              ELSE
                 KW = 1
                 IF(M1.LT.0.08D0) THEN
+                  IF(nomass(I).EQ.1) THEN
+                     GO TO 222
+                   END IF
                    ILOWM = ILOWM + 1
                    IF(M1.LT.XMMIN) XMMIN = M1
                    M1 = 0.08
@@ -128,7 +132,7 @@
                 END IF
 *               IF(M0.LE.0.01D0) KW = 10
 *               IF(M0.GE.100.D0) KW = 14
-             ENDIF
+222          ENDIF
           ENDIF
 *
           IF(KZ(19).EQ.2.OR.KZ(19).EQ.4)THEN
@@ -298,11 +302,11 @@
  60   continue
 *
       if(rank.eq.0)then
-      WRITE (6,76)  (K,K=0,15)
-   76 FORMAT (/,11X,' KTYPE: ',16I4)
-      do 80 I=0,15
-      WRITE (6,75)  I,(KTYPE(I,K),K=0,15)
-   75 FORMAT (/,11X,I5,': |',17I4)
+      WRITE (6,76)  (K,K=1,14)
+   76 FORMAT (/,11X,' KTYPE: ',14I4)
+      do 80 I=1,14
+      WRITE (6,75)  I,(KTYPE(I,K),K=1,14)
+   75 FORMAT (/,11X,I5,': |',15I4)
  80   continue
       end if
 *

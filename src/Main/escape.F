@@ -78,7 +78,7 @@
 *     Find distance to the nearest neighbour and calculate potential.
             POTI = 0.0D0
             DO 8 J = IFIRST,NTOT
-               IF (J.EQ.I) GO TO 8
+               IF (nomass(j).eq.1.or.J.EQ.I) GO TO 8
                RIJ2 = (X(1,I) - X(1,J))**2 + (X(2,I) - X(2,J))**2 +
      &              (X(3,I) - X(3,J))**2
                POTI = POTI + BODY(J)/SQRT(RIJ2)

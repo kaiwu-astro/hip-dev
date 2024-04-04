@@ -47,6 +47,8 @@
       RCM2 = MAX(RCRIT2,RPERT2)
       NNB1 = 0
       DO 20 J = IFIRST,NTOT
+*       Skip force calculation for massless particles (RSDL).
+          if (nomass(j).eq.1) goto 20
           A1 = X(1,J) - XI(1)
           A2 = X(2,J) - XI(2)
           A3 = X(3,J) - XI(3)

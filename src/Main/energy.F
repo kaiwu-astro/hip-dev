@@ -65,6 +65,8 @@
 !$omp parallel do private(I,JMIN,IPAIR,POTI,POTJ,A1,A2,A3,A4) 
 !$omp& reduction(+:POT)
       DO 20 I = 1,NTOT
+      if(nomass(i).eq.1) goto 20
+
          JMIN = I + 1
          IF (I.LE.2*NPAIRS) THEN
 *     Binding energy of regularized pairs is included explicitly above.
@@ -83,7 +85,8 @@
 *     POTI contains potential at particles position to be stored later (R.Sp.)
          DO 30 J = 1,N
             IF (J.EQ.I .OR. J.EQ.2*IPAIR-1 .OR. J.EQ.2*IPAIR .OR.
-     *           BODY(J).EQ.0.0D0 .OR. BODY(I).EQ.0.0D0)  GO TO 30
+     *           BODY(J).EQ.0.0D0 .OR. BODY(I).EQ.0.0D0.OR.
+     *           nomass(j).eq.1)  GO TO 30
             A1 = X(1,I) - X(1,J)
             A2 = X(2,I) - X(2,J)
             A3 = X(3,I) - X(3,J)

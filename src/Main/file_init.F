@@ -72,6 +72,7 @@
       FILE(46) = 'mbhnb.46  '
       FILE(54) = 'close.54  '
       FILE(55) = 'rpmax.55  '
+      FILE(59) = 'pln.59    ' !FFD Sept2023 Planetary systems file (works only if there are binary in IC)
       FILE(71) = 'cirdiag.71'
       FILE(73) = 'histab.73 '
       FILE(75) = 'cirdiag.75'
@@ -248,6 +249,9 @@
      &             ACCESS='APPEND')
       IF (KZ(27).GT.0) 
      &OPEN (UNIT=96,STATUS=FILESTAT,FORM='FORMATTED',FILE=FILE(96),
+     &             ACCESS='APPEND')
+      IF (nmass.gt.0)
+     &OPEN (UNIT=59,STATUS='UNKNOWN',FORM='FORMATTED',FILE=FILE(59),
      &             ACCESS='APPEND')
 #ifdef PARALLEL
       end if

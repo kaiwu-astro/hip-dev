@@ -13,21 +13,19 @@
 #else
 #define MPIINIT 0
 #endif
-*
+* FFD Sept2023: added nmass for reading new parameter
 *
        NAMELIST /ININPUT/ N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM,
+     &    nmass,
      &    ETAI, ETAR, RS0, DTADJ, DELTAT, TCRIT,QE, RBAR, ZMBAR,
      &    KZ, DTMIN, RMIN, ETAU, ECLOSE, GMIN, GMAX, SMAX, LEVEL
 *      Define Default Values
 *       
-      IF(rank.eq.0)THEN
-*      Make sure the value for N read from data is used (Uli/Rainer June 2023)
-      NCURR = N
 *
+      WRITE(*,*) nmass
+      IF(rank.eq.0)THEN
       READ (NML=ININPUT, IOSTAT=IIC, UNIT=5)
       IF (IIC.NE.0) WRITE (6, '("INPUT: invalid Namelist format")')
-*
-      IF(KSTART.GT.1) N = NCURR
 *
 *       Read & print the main input parameters.
 *        READ (5,*)  N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM
@@ -69,7 +67,7 @@ C Termination time in physical units, TCRITP, read in nbody6.F
       CALL MPI_BCAST(NNBOPT,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
       CALL MPI_BCAST(NRUN,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
       CALL MPI_BCAST(NCOMM,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-*
+      CALL MPI_BCAST(nmass,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
       CALL MPI_BCAST(KZ(1),50,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
       CALL MPI_BCAST(KZ273,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
 *
@@ -93,11 +91,14 @@ C Termination time in physical units, TCRITP, read in nbody6.F
       CALL MPI_BCAST(LEVEL,1,MPI_CHARACTER,0,MPI_COMM_WORLD,ierr)
 #endif
 *
+
       if(rank.eq.0)then
          WRITE (6,10)
-   10    FORMAT (/////,15X,'N  NFIX  NCRIT  NRAND  NNBOPT  NRUN NCOMM')
-         WRITE (6,12)  N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM
-   12    FORMAT (/,I16,I6,2I7,I8,2I6)
+   10    FORMAT (/////,15X,'N  NFIX  NCRIT  NRAND  NNBOPT  NRUN NCOMM
+     &        nmass')
+         WRITE (6,12)  N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM,
+     &        nmass
+   12    FORMAT (/,I16,I6,2I7,I8,2I6,I16,I16)
 *
 C New: (Aug.1998, P.Kroupa)
          WRITE(6,15)
@@ -197,10 +198,10 @@ C      end if
 * sse parameters for hrdiag, mlwind
       integer ecflag,wdflag,nsflag,psflag,mdflag,bhflag,kmech,idum
       real*8 mch,mxns0,mxns1,nwind,bwind,flbv,disp,ecsig,
-     *       wdsig1,wdsig2,wdkmax,vvfac,zmetal
+     *       wdsig1,wdsig2,wdkmax,vvfac
       common/sse/ecflag,wdflag,nsflag,psflag,mdflag,bhflag,
      *       kmech,idum,mch,mxns0,mxns1,nwind,bwind,flbv,disp,ecsig,
-     *       wdsig1,wdsig2,wdkmax,vvfac,zmetal
+     *       wdsig1,wdsig2,wdkmax,vvfac
       namelist/insse/ecflag,wdflag,nsflag,psflag,mdflag,bhflag,
      *       kmech,mch,mxns0,mxns1,nwind,bwind,flbv,disp,ecsig,
      *       wdsig1,wdsig2,wdkmax,vvfac

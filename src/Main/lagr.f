@@ -46,7 +46,7 @@
             NPP = 0
             NCMB = -100000
             DO I = 1,IFIRST-1
-               IF(NAME(I).NE.NIMBH) THEN
+               IF(NAME(I).NE.NIMBH.and.NOMASS(I).EQ.0) THEN
                   NPP = NPP + 1
                   R2(NPP) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &                 (X(3,I) - C(3))**2
@@ -58,7 +58,7 @@
 *
 *     Set square radii of single stars
             DO I = IFIRST,N
-               IF(NAME(I).NE.NIMBH) THEN
+               IF(NAME(I).NE.NIMBH.and.NOMASS(I).EQ.0) THEN
                   NSNGL = NSNGL + 1
                   R2(NPP+NSNGL) = (X(1,I) - C(1))**2 + 
      &                 (X(2,I) - C(2))**2 + (X(3,I) - C(3))**2
@@ -69,7 +69,7 @@
             END DO
 *     Set square radii of c.m.
             DO I = N+1, NTOT
-               IF(NAME(I).NE.NCMB) THEN
+               IF(NAME(I).NE.NCMB.and.NOMASS(I).EQ.0) THEN
                   NBIN = NBIN + 1
                   RBIN(NBIN) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &                 (X(3,I) - C(3))**2
@@ -81,9 +81,11 @@
 *     Set square radii of resolved binaries
 !$omp parallel do private(I)
             DO I = 1,IFIRST-1
+               IF(NOMASS(I).EQ.0)THEN
                R2(I) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &              (X(3,I) - C(3))**2
                JLIST(I) = I
+               END IF
             END DO
 !$omp end parallel do
 
@@ -91,20 +93,24 @@
 *     Set square radii of single stars
 !$omp parallel do private(I)
             DO I = IFIRST,N
+               IF(NOMASS(I).EQ.0)THEN
                R2(I) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &              (X(3,I) - C(3))**2
                RSNGL(I-IFIRST+1) = R2(I)
                JLIST(I) = I
                ISLIST(I-IFIRST+1) = I
+               END IF
             END DO
 !$omp end parallel do
 
 *     Set square radii of c.m.
 !$omp parallel do private(I)
             DO I = N+1, NTOT
+               IF(NOMASS(I).EQ.0)THEN
                RBIN(I-N) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &              (X(3,I) - C(3))**2
                IBLIST(I-N) = I
+               END IF
             END DO
 !$omp end parallel do
             NP = N
@@ -125,7 +131,7 @@
 *     exclude massive black hole
          IF (KZ(24).EQ.1) THEN
             DO I = 1,N
-               IF(NAME(I).NE.NIMBH) THEN
+               IF(NAME(I).NE.NIMBH.AND.NOMASS(I).EQ.0) THEN
                   NP = NP + 1
                   R2(NP) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &                 (X(3,I) - C(3))**2
@@ -135,9 +141,11 @@
          ELSE
 !$omp parallel do private(I)
             DO I = 1,N
+               IF(NOMASS(I).EQ.0)THEN
                R2(I) = (X(1,I) - C(1))**2 + (X(2,I) - C(2))**2 +
      &              (X(3,I) - C(3))**2
                JLIST(I) = I
+               END IF
             END DO
 !$omp end parallel do
             NP = N

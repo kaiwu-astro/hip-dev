@@ -34,6 +34,7 @@
 *
 *       Sum over all other bodies.
       DO 30 JDUM = IFIRST,JLAST
+          if(nomass(jdum).eq.1) go to 30
           IF (JDUM.EQ.I) GO TO 30
           J = JDUM
           IF (J.GT.N.AND.J.EQ.NAMEJ) THEN

@@ -104,6 +104,8 @@ c$$$     *     phidbl(istart+ifirst-1))
 #else
 !$omp parallel do private(I,JMIN,IPAIR,POTI,POTJ,A1,A2,A3,A4)
       DO 220 I = istart,iend
+      if(nomass(i).eq.1) goto 220 !FFD Sept2023 Skip energy calculation for massless particles
+
          JMIN = I + 1
          IF (I.LE.2*NPAIRS) THEN
 *     Binding energy of regularized pairs is included explicitly above.

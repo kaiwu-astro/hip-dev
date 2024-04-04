@@ -8,6 +8,8 @@
 *     Common block to keep neighbour density and potential high prec (R.Sp.)
       COMMON/POTDEN/  RHO(NMAX),XNDBL(NMAX),PHIDBL(NMAX)
       REAL*8  RLIST(LMAX),RHO,RHOS
+      integer*4 nma
+
       DATA RHOM/1.0D0/
 *
 *
@@ -18,7 +20,13 @@
 *       Select > N/5 central particles.
 *       Initialize neighbour densities of all singles and c.m.
     5 NC = 0
+*FFD Sept 2023: nma stands for massive stars. This is to prevent massless particle neighbours in the calculation
       DO 10 I = IFIRST,NTOT
+          IF (nomass(i).eq.0) then
+              nma = nma+1
+          else
+              go to 10
+          end if
           RHO(I) = 0.D0
           RI2 = (X(1,I) - RDENS(1))**2 + (X(2,I) - RDENS(2))**2 +
      &                                   (X(3,I) - RDENS(3))**2
@@ -28,8 +36,8 @@
           END IF
    10 CONTINUE
 *
-
-      IF (NC.LT.N/5) THEN
+*nma used for the reason in line 23
+      IF (NC.LT.nma/5) THEN
           RCORE2 = 1.5*RCORE2
           GO TO 5
       END IF

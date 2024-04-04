@@ -9,8 +9,8 @@
       EXTERNAL SCALE,MERGE
 *      COMMON/NNBCOT/ nnbave
       PARAMETER  (NS=12)
-*
-*
+*       Initialize small mass of massless particles in N-body units
+      smallMass=1.e-10
 *       Initialize global scalars, counters & useful constants.
       CALL ZERO
 *
@@ -36,15 +36,18 @@
       BODYM = ZMASS/FLOAT(N)
 *     Notice from now ZMBAR is mass scale factor instead of average mass of input data
       IF (KZ(22).EQ.10) THEN
-         ZMBAR = ZMBAR*FLOAT(N)
+* FFD Sept2023: Astronomical units NEED to have -nmass
+         ZMBAR = ZMBAR*FLOAT(N-nmass)
       ELSE IF(KZ(19).EQ.4) THEN
 *       In case of reading from unit 21 information for scaling should be in first line.
 *       Assume TTOT in Myrs for instar.F
          READ(21,*)TMOC,NZERO,RBAR,ZMBAR,TSTAR
          WRITE(6,*)' SEV input from file unit 21, reading: TMOC =',TMOC,
      *   ' Myrs NZERO = ',NZERO,' RBAR, ZMBAR, TSTAR =',RBAR,ZMBAR,TSTAR
+*       FFD Sept2023: NZERO NEED to contain Npl*2, Nbin*2, Nstar!
          ZMBAR = ZMBAR*FLOAT(NZERO)
-      ELSE
+      ELSE IF (KZ(22).NE.10.and.KZ(19).NE.4) THEN
+*FFDSept2023: Condition necessary for not going against kz19 eq 4
          ZMBAR = ZMBAR/BODYM
       END IF
 *
@@ -59,6 +62,11 @@
 *** FRenaud
 #endif
           CALL XTRNL0
+      END IF
+*
+*       Check optional scaling to hot system.
+      IF (KZ(29).GT.0) THEN
+          CALL HOTSYS
       END IF
 *
 *       Check option for initial binaries.
@@ -78,6 +86,9 @@
       BODY1 = 0.0
       ZSMASS0 = 0.0
       ZBMASS0 = 0.0
+*Initialisation NNO and NMA for massless particles numbers
+      NNO = 0
+      NMA = 0
       DO 20 I = 1,N
 *     exclude massive black hole mass in initial cluster mass
           IF(KZ(24).EQ.1.AND.I.EQ.N) GO TO 19
@@ -87,11 +98,28 @@
              ZSMASS0 = ZSMASS0 + BODY(I)
           END IF
  19       NAME(I) = I
+*     check number of massless particles in initial data
+          IF(BODY(I).LE.smallMass)THEN
+               nomass(i) = 1
+               NNO = NNO + 1
+          ELSE
+               nomass(i) = 0
+               NMA = NMA + 1
+          END IF
+*
           BODY1 = MAX(BODY1,BODY(I))
           DO 15 K = 1,3
               X0DOT(K,I) = XDOT(K,I)
    15     CONTINUE
    20 CONTINUE
+
+      if(rank.eq.0)then
+      print*,"Number of initial massless particles:", NNO
+      print*,"Number of initial massive  particles:", NMA
+      end if
+      if(NNO.NE.nmass) STOP "Wrong Number of massless particles in data"
+      nmass0 = nmass
+*
 *
 *     DO 27 I = 1,N
 *       write (991,28) BODY(I)*ZMBAR, (X(K,I)*RBAR,K=1,3),

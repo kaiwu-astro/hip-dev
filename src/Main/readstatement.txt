@@ -1,0 +1,202 @@
+binpop.F:      READ (NML=INBINPOP, IOSTAT=IIC, UNIT=5)
+binpop.F:*       READ (5,*)  SEMI0, ECC0, RATIO,RANGE, NSKIP, IDORM
+cloud0.f:*     READ (5,*)  NCL, RB2, VCL, SIGMA, (CLM(J),J=1,NCL),
+coal.f:*       Common Blocks read in READSE (RSp Mar 23)
+comenv.f:*       Common Blocks read in READSE (RSp Mar 23)
+corerd.f:*       Common Blocks read in READSE (RSp Mar 23)
+data.F:      LOGICAL LREADN,LREADP,LREADF
+data.F:      IREAD = 0
+data.F:              READ (10,*)  BODY(I), (X(K,I),K=1,3), (XDOT(K,I),K=1,3)
+data.F:*      IF (KZ(23).GE.3) READ (10,*) RTIDE
+data.F:          READ(10,*) N
+data.F:          READ(10,*) DUMDY
+data.F:          READ(10,*) DUMDY
+data.F:          READ(10,*)BODY(I)
+data.F:   52     READ(10,*)(X(K,I),K=1,3)
+data.F:   53     READ(10,*)(XDOT(K,I),K=1,3)
+data.F:          LREADF = .FALSE.
+data.F:          LREADP = .FALSE.
+data.F:          READ(10,'(2A1)')(CHAR(K),K=1,2)
+data.F:          LREADN=(.NOT.LREADF).AND.CHAR(1).EQ.'('.AND.CHAR(2).EQ.'P'
+data.F:          IF(LREADN)THEN
+data.F:          LREADF=.TRUE.
+data.F:          READ(10,111)N
+data.F:          LREADP=CHAR(1).EQ.'('.AND.CHAR(2).EQ.'D'
+data.F:          IF(LREADP.AND.IS.EQ.0)THEN
+data.F:          IF(LREADP)THEN
+data.F:          READ(10,*)CHAR(1),CHAR(2),BODY(I)
+data.F:          READ(10,*)CHAR(1),CHAR(2),(X(K,I),K=1,3)
+data.F:          READ(10,*)CHAR(1),CHAR(2),(XDOT(K,I),K=1,3)
+data.F:      READ (NML=INDATA, IOSTAT=IIC, UNIT=5)
+data.F:*        READ (5,*) ALPHAS, BODY1, BODYN, NBIN0, NHI0, ZMET, EPOCH0, 
+gpunb.gpu.cu:#define NTHREAD 64 // 64, 96, 128 or 192
+gpunb.gpu.cu:#define NIMAX (NTHREAD * NIBLOCK) // 1024
+gpunb.gpu.cu:  int iaddr = tid + NTHREAD * ibid;
+gpunb.gpu.cu:  for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.gpu.cu:    __shared__ Jparticle jpshare[NTHREAD];
+gpunb.gpu.cu:    dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.gpu.cu:    if(jend-j < NTHREAD){
+gpunb.gpu.cu:      for(int jj=0; jj<NTHREAD; jj++){
+gpunb.gpu.cu:  int iaddr = tid + NTHREAD * ibid;
+gpunb.gpu.cu:  for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.gpu.cu:    __shared__ Jparticle jpshare[NTHREAD];
+gpunb.gpu.cu:    dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.gpu.cu:    if(jend-j < NTHREAD){
+gpunb.gpu.cu:      for(int jj=0; jj<NTHREAD; jj++){
+gpunb.gpu.cu:	// size_t fosize = NIBLOCK * NJBLOCK * NTHREAD * sizeof(Force);
+gpunb.gpu.cu:	// jpsize += NTHREAD * sizeof(Jparticle);
+gpunb.gpu.cu:	jpbuf.allocate(nbmax + NTHREAD);
+gpunb.gpu.cu:  int niblock = 1 + (ni-1) / NTHREAD;
+gpunb.gpu.cu:  dim3 threads(NTHREAD, 1, 1);
+gpunb.gpu.cu:  //  CUDA_SAFE_THREAD_SYNC();
+gpunb.gpu.cu:  //  CUDA_SAFE_THREAD_SYNC();
+gpunb.gpu.cu:  //  CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu:#define NTHREAD 64 // 64 or 128
+gpunb.velocity.cu:#define NIMAX (NTHREAD * NIBLOCK) // 2048
+gpunb.velocity.cu:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu:		if(jend-j < NTHREAD){
+gpunb.velocity.cu:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu:		if(jend-j < NTHREAD){
+gpunb.velocity.cu:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu:			jpbuf [tid].allocate(nj + NTHREAD);
+gpunb.velocity.cu:			int niblock = 1 + (ni-1) / NTHREAD;
+gpunb.velocity.cu:			dim3 threads(NTHREAD, 1, 1);
+gpunb.velocity.cu:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.intel:#define NTHREAD 64 // 64 or 128
+gpunb.velocity.cu.intel:#define NIMAX (NTHREAD * NIBLOCK) // 2048
+gpunb.velocity.cu.intel:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.intel:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.intel:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.intel:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.intel:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.intel:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.intel:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.intel:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.intel:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.intel:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.intel:			jpbuf [tid].allocate(nj + NTHREAD);
+gpunb.velocity.cu.intel:			int niblock = 1 + (ni-1) / NTHREAD;
+gpunb.velocity.cu.intel:			dim3 threads(NTHREAD, 1, 1);
+gpunb.velocity.cu.intel:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.intel:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.intel:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.multi:#define NTHREAD 64 // 64 or 128
+gpunb.velocity.cu.multi:#define NIMAX (NTHREAD * NIBLOCK) // 2048
+gpunb.velocity.cu.multi:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.multi:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.multi:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.multi:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.multi:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.multi:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.multi:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.multi:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.multi:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.multi:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.multi:                        jpbuf [tid].allocate(nj + NTHREAD);
+gpunb.velocity.cu.multi:			int niblock = 1 + (ni-1) / NTHREAD;
+gpunb.velocity.cu.multi:			dim3 threads(NTHREAD, 1, 1);
+gpunb.velocity.cu.multi:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.multi:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.multi:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.openmp:#define NTHREAD 64 // 64 or 128
+gpunb.velocity.cu.openmp:#define NIMAX (NTHREAD * NIBLOCK) // 2048
+gpunb.velocity.cu.openmp:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.openmp:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.openmp:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.openmp:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.openmp:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.openmp:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.openmp:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.openmp:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.openmp:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.openmp:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.openmp:			jpbuf [tid].allocate(nj + NTHREAD);
+gpunb.velocity.cu.openmp:			int niblock = 1 + (ni-1) / NTHREAD;
+gpunb.velocity.cu.openmp:			dim3 threads(NTHREAD, 1, 1);
+gpunb.velocity.cu.openmp:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.openmp:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.openmp:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.single:#define NTHREAD 64 // 64 or 128
+gpunb.velocity.cu.single:#define NIMAX (NTHREAD * NIBLOCK) // 2048
+gpunb.velocity.cu.single:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.single:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.single:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.single:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.single:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.single:	for(int j=jstart; j<jend; j+=NTHREAD){
+gpunb.velocity.cu.single:		__shared__ Jparticle jpshare[NTHREAD];
+gpunb.velocity.cu.single:		dst[NTHREAD+tid] = src[NTHREAD+tid];
+gpunb.velocity.cu.single:		if(jend-j < NTHREAD){
+gpunb.velocity.cu.single:			for(int jj=0; jj<NTHREAD; jj++){
+gpunb.velocity.cu.single:                        jpbuf [tid].allocate(nj + NTHREAD);
+gpunb.velocity.cu.single:			int niblock = 1 + (ni-1) / NTHREAD;
+gpunb.velocity.cu.single:			dim3 threads(NTHREAD, 1, 1);
+gpunb.velocity.cu.single:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.single:			// CUDA_SAFE_THREAD_SYNC();
+gpunb.velocity.cu.single:			// CUDA_SAFE_THREAD_SYNC();
+gpupot.gpu.cu:#define NTHREAD 128
+gpupot.gpu.cu:	__shared__ Particle jpbuf[NTHREAD];
+gpupot.gpu.cu:	int i = NTHREAD * blockIdx.x + threadIdx.x;
+gpupot.gpu.cu:	for(int j=0; j<n; j+= NTHREAD){
+gpupot.gpu.cu:		for(int jj=0; jj<NTHREAD; jj++){
+gpupot.gpu.cu:	int ng = NTHREAD * (ni/NTHREAD + (ni%NTHREAD ? 1 : 0));
+gpupot.gpu.cu:	int ntg = NTHREAD * (n/NTHREAD + (n%NTHREAD ? 1 : 0));
+gpupot.gpu.cu:	if (ntg<ng+istart) ntg += NTHREAD;
+gpupot.gpu.cu:	dim3 grid(ng/NTHREAD, 1, 1);
+gpupot.gpu.cu:	dim3 threads(NTHREAD, 1, 1);
+gpupot.gpu.cu:	int sharedMemSize = NTHREAD * sizeof(Particle);
+hipop.F:      READ (NML=INHIPOP, IOSTAT=IIC, UNIT=5)
+hipop.F:*       READ (5,*)  SEMI0, ECC0, RATIO, RANGE
+hotsys.f:      READ (5,*)  SIGMA0
+hrdiag.f:*       Common Blocks read in READSE (RSp Mar 23)
+imbhinit.F:      if(rank.eq.0) READ (5,*) BIMBH, XIMBH(1:3),VIMBH(1:3), DTBH
+input.F:      READ (NML=ININPUT, IOSTAT=IIC, UNIT=5)
+input.F:*        READ (5,*)  N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM
+input.F:*        READ (5,*)  ETAI, ETAR, RS0, DTADJ, DELTAT, TCRIT,
+input.F:*        READ (5,*)  (KZ(J),J=1,50)
+input.F:*        READ (5,*)  DTMIN, RMIN, ETAU, ECLOSE, GMIN, GMAX, SMAX
+input.F:      CALL READSE(LEVEL)
+input.F:C          READ (5,*)  DELTAS, ORBITS(1), (GPRINT(J),J=1,K)
+input.F:      SUBROUTINE READSE(LEVEL)
+instar.F:             READ(21,*)M1,KW,M0,EPOCH1,OSPIN,MC
+intgrt.F:!$omp parallel do if(NXTLEN.GE.ITHREAD) private(L,I)
+intgrt.F:!$omp parallel do if(NXTLEN.GE.ITHREAD) private(L,I,DTR)
+intgrt.F:!$omp parallel do if(idivide.GE.ITHREAD) private(L,LL,I,DTR)
+intgrt.F:!$omp parallel do if(NREG.GE.ITHREAD) private(L,I,NNB)
+kick.F:*       Common Blocks read in READSE (RSp Mar 23)
+mdot.F:*       Common Blocks read in READSE (RSp Mar 23)
+mix.f:*       Common Blocks read in READSE (RSp Mar 23)
+mlwind.f:*       Common Blocks read in READSE (RSp Mar 23)
+modify.F:          READ (NML=ININPUT, IOSTAT=IIC, UNIT=5)
+modify.F:      CALL READSE(LEVEL)
+mydump.F:           READ (J) NPARTMP
+mydump.F:           READ (J) ntot,npairs,nomass,nttot,ia,b,c,d,e,g,l,m,o,p,q,s
+nbody6.F:*     CALL MPI_INIT_THREAD(MPI_THREAD_FUNNELED,ithread,ierr)
+nbody6.F:      READ (NML=INNBODY6, IOSTAT=IIC, UNIT=5)
+nbody6.F:*     READ (5,*)  KSTART, TCOMP, TCRTP0,
+nbody6.F:      READ (NML=INNBODY6, IOSTAT=IIC, UNIT=5)
+nbody6.F:*     READ (5,*)  KSTART, TCOMP, TCRTP0,
+roche.f:*       Common Blocks read in READSE (RSp Mar 23)
+scale.F:      READ (NML=INSCALE, IOSTAT=IIC, UNIT=5)
+scale.F:*     READ (5,*)  Q, VXROT, VZROT, RTIDE
+setup.F:          READ (5,*)  APO, ECC, N2, SCALE
+setup.F:          READ (5,*)  APO, ECC, SCALE
+setup.F:          READ (5,*)  SEMI, ECC, ZM1, ZM2
+setup.F:              READ (5,*) ZMH, RCUT
+start.F:         READ(21,*)TMOC,NZERO,RBAR,ZMBAR,TSTAR
+ttinit.f:        READ(20,*), NBTT, TTUNIT, TTOFFSET
+ttinit.f:          READ(20,*), TTTIME(I),
+ttinit.f:   10   FORMAT (/, 12X,'TIDAL TENSORS READ: ',I10,
+ttinit.f:     &  READ (5,*) IKEYPOT(1:11), (RG(K),K=1,3), (VG(K),K=1,3)
+xtrnl0.F:      READ (NML=INXTRNL0, IOSTAT=IIC, UNIT=5)
+xtrnl0.F:*        READ (5,*)  GMG, RG0
+xtrnl0.F:      READ (NML=INXTRNL0, IOSTAT=IIC, UNIT=5)
+xtrnl0.F:*             READ (5,*)  GMG, DISK, A, B, VCIRC, RCIRC, GMB, AR, GAM,
+xtrnl0.F:*        if(rank.eq.0) READ (5,*)  MP, AP2, MPDOT, TDELAY

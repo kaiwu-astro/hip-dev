@@ -71,7 +71,7 @@
 *
 *     Determine astronomical scale from original data
 *     Assume Mass use the unit of M_sun 
-         IF(KZ(22).EQ.10) ZMBAR = ZMASS/FLOAT(N)
+         IF(KZ(22).EQ.10) ZMBAR = ZMASS/FLOAT(N-nmass)
          
          ZMASS = 1.D0
 *
@@ -79,7 +79,7 @@
 *
       GRAV = 1.0D0
 *     Astronomical unit in non-scaled input data
-      IF (LSCALE) GRAV = 4.30145D-3*ZMBAR*FLOAT(N)
+      IF (LSCALE) GRAV = 4.30145D-3*ZMBAR*FLOAT(N-nmass)
       
 *     --10/22/13 17:12-lwang-binary-scale-------------------------------*
 ***** Note:------------------------------------------------------------**
@@ -225,7 +225,7 @@
          E0 = -0.25
          ETOT = (Q - 1.0)*POT
 *     Include case of hot system inside reflecting boundary.
-         IF (Q.GT.1.0) THEN
+         IF (KZ(29).GT.0.AND.Q.GT.1.0) THEN
             E0 = ETOT
          END IF
 *     Define scaling factor (set E0 = ETOT if energy scaling not desired).
@@ -260,7 +260,7 @@
 
 *     Print scaling information
       if(rank.eq.0)
-     *     WRITE (6,65)  SX, ETOT, BODY(1), BODY(N), ZMASS/FLOAT(N),
+     *WRITE (6,65)  SX, ETOT, BODY(1), BODY(N), ZMASS/FLOAT(N-nmass),
      &     Q
  65   FORMAT (//,12X,'SCALING:   SX =',1P,E13.5,'  E =',E10.2,
      &     '  M(1) =',E9.2,'  M(N) =',E9.2,'  <M> =',E9.2,
@@ -311,7 +311,7 @@ C          CALL EVOLVE(0,0)
 C      END IF
 *
 *       Print half-mass relaxation time & equilibrium crossing time.
-      A1 = FLOAT(N)
+      A1 = FLOAT(N-nmass)
       TRH = 4.0*TWOPI/3.0*(VC*RSCALE)**3/(15.4*ZMASS**2*LOG(A1)/A1)
       if(rank.eq.0)WRITE (6,95)  TRH, TCR, 2.0*RSCALE/VC
    95 FORMAT (/,12X,'TIME SCALES:   TRH =',1PE8.1,'  TCR =',E8.1,

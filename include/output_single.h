@@ -9,6 +9,7 @@
      &          S_STEP(NMAX), S_STEPR(NMAX), S_T0(NMAX), S_T0R(NMAX),
      &          S_ASPN(NMAX), S_TEV(NMAX), S_TEV0(NMAX), S_EPOCH(NMAX),
 *    &          S_ZMETA(NMAX), NS_NPOPU(NMAX),
+     &                  S_NOMASS(NMAX),
      &                  S_RS(NMAX), S_L(NMAX), S_TE(NMAX),
      &                  S_RC(NMAX), S_MC(NMAX), S_POT(NMAX),
      &                  NS_KW(NMAX),NS_NAM(NMAX),NS_LAB(NMAX)
@@ -20,7 +21,8 @@
       REAL*4 S_STEP, S_STEPR, S_T0, S_T0R, S_ASPN
       REAL*4 S_TEV, S_TEV0, S_EPOCH
 *     REAL*4 S_ZMETA
-*     INTEGER NS_NPOPU
+*     INTEGER NS_NPOPU, S_NOMASS
+      INTEGER S_NOMASS
       REAL*4 S_RS, S_L, S_TE, S_RC, S_MC
       REAL*4 S_POT
       INTEGER NS_KW,NS_NAM,NS_LAB

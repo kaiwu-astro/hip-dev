@@ -45,6 +45,7 @@ c$$$      end if
 *
 *       Sum over c.m. instead of regularized neighbours since F not known.
       DO 60 J = IFIRST,JLAST
+        if(nomass(j).eq.1) go to 60
 *       Note IFIRST = 2*NPAIRS + 1, JCOMP + 1, ICOMP for KCASE = 0, 1, 2.
           DO 15 K = 1,3
               A(K) = X(K,J) - X(K,I)

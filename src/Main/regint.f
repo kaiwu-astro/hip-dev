@@ -1,4 +1,4 @@
-      SUBROUTINE REGINT(IOFF,NI,IREG,IFIRST,N,X,XDOT,BODY,
+      SUBROUTINE REGINT(NOMASS,IOFF,NI,IREG,IFIRST,N,X,XDOT,BODY,
      &     DTR,BODYM,M_FLAG,NB_FLAG,NNBOPT,RS,FREG,FDR,LISTGP,POT)
 *
 *
@@ -7,12 +7,12 @@
 *     M_FLAG: 1: mass weighted neighbor radius
 *     N_FLAG: 1: reduce neighbor radius by (NNBOPT/NNB)**0.333 if NNB overflow
 *     POT: positive potential value
-
+*
       PARAMETER (maxthr=1024)
       include 'params.h'
       REAL*8 X(3,NMAX),XDOT(3,NMAX),BODY(NMAX),RS(NMAX),DTR(NMAX)
       REAL*8 FREG(3,maxthr),FDR(3,maxthr),POT(NMAX),BODYM
-      INTEGER LISTGP(LMAX,maxthr),IREG(NMAX)
+      INTEGER LISTGP(LMAX,maxthr),IREG(NMAX),NOMASS(NMAX)
       INTEGER IOFF,NI,IFIRST,N,NNBOPT,M_FLAG,NB_FLAG
 *     local variables
       REAL*8 RSM,RS2,A1,A2,A3,DV(3),RIJ2,DR2I,DR3I,DRDV,DRDP
@@ -24,6 +24,7 @@
 *!$omp&  DRDV,DRDP,DP,RIJP,RSM,RI)
       DO II = 1, NI
          I = IREG(II+IOFF-1)
+         
 *     Set neighbor radius limit
  2       RS2 = RS(I)*RS(I)
 *     Mass weighted neighbor radius
@@ -37,6 +38,9 @@
          FDR(1:3,II) = 0.0
 
          DO 1 J = IFIRST,N
+*       Skip force calculation for massless particles (RSDL).
+         if (nomass(j).eq.1) goto 1
+*RSP
             IF (J.EQ.I) GO TO 1
             A1 = X(1,J) - X(1,I)
             A2 = X(2,J) - X(2,I)

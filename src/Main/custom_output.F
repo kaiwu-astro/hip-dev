@@ -28,6 +28,7 @@
 *     (single parameter: 1/2, means inner binary components, 3 means outer component )
 *     (merger parameter: 0 inner binary, 1 outer binary)
 *     (POT: potential, sum of - G m_j/r_j)
+*     (Massless flags: 1 is a MLP, 0 is star)
 *-----------------------------------------------------------------------------------
 *
       include 'common6.h'
@@ -204,6 +205,12 @@
                B_TEV02(IK) = REAL(TEV0(J2))
                B_EPOCH1(IK) = REAL(EPOCH(J1))
                B_EPOCH2(IK) = REAL(EPOCH(J2))
+               IF(BODY(J2) < smallMass)THEN
+                  B_NOMASS(IK)= 1
+               ELSE
+                  B_NOMASS(IK) = 0
+               ENDIF
+* FFD 19022024: No need for primary to check for massless, as massless particle cannot be primary stars
 *              B_ZMETA1(IK) = REAL(ZMETA(J1))
 *              B_ZMETA2(IK) = REAL(ZMETA(J2))
 *              NB_NPOPU1(IK) = NPOPU(J1)
@@ -912,6 +919,11 @@ C*     single
       S_TEV(IK) = REAL(TEV(I))
       S_TEV0(IK) = REAL(TEV0(I))
       S_EPOCH(IK) = REAL(EPOCH(I))
+      IF(BODY(I) < smallMass)THEN
+         S_NOMASS(IK)= 1
+      ELSE
+         S_NOMASS(IK) = 0
+      ENDIF
 *     S_ZMETA(IK) = REAL(ZMETA(I))
 *     NS_NPOPU(IK) = NPOPU(I)
 
