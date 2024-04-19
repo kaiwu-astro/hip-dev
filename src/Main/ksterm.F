@@ -154,6 +154,23 @@ c$$$      END IF
      &              (X(2,ICM) - RDENS(2))**2 +
      &              (X(3,ICM) - RDENS(3))**2)
           VI = SQRT(XDOT(1,ICM)**2+XDOT(2,ICM)**2+XDOT(3,ICM)**2)
+*
+          R1XY=SQRT((X(1,I1)-RDENS(1))**2+(X(2,I1)-RDENS(2))**2)
+          R1INC = ATAN((X(3,I1)-RDENS(3))/R1XY)
+          R1PHI = ACOS((X(1,I1)-RDENS(1))/R1XY)
+*
+          R2XY=SQRT((X(1,I2)-RDENS(1))**2+(X(2,I2)-RDENS(2))**2)
+          R2INC = ATAN((X(3,I2)-RDENS(3))/R2XY)
+          R2PHI = ACOS((X(1,I2)-RDENS(1))/R2XY)
+*
+          V1XY = SQRT(XDOT(1,I1)**2+XDOT(2,I1)**2)
+          V1INC = ATAN(XDOT(3,I1)/V1XY)
+          V1PHI = ACOS(XDOT(1,I1)/V1XY)
+*
+          V2XY = SQRT(XDOT(1,I2)**2+XDOT(2,I2)**2)
+          V2INC = ATAN(XDOT(3,I2)/V2XY)
+          V2PHI = ACOS(XDOT(1,I2)/V2XY)
+*
           SEMI = -0.5*BODY(ICM)/H(IPAIR)
       ECC2 = (1.0-R(IPAIR)/SEMI)**2+TDOT2(IPAIR)**2/(BODY(ICM)*SEMI)
           EB = -0.5*BODY(I1)*BODY(I2)/SEMI
@@ -165,14 +182,18 @@ c$$$      END IF
      &         R(IPAIR),SQRT(ECC2),SEMI,EB,PD,H(IPAIR),GAMMA(IPAIR),
      &         STEP(ICM),LIST(1,I1),LIST(1,ICM),
      &         BODY(I1)*ZMBAR,BODY(I2)*ZMBAR,
-     &         RADIUS(I1)*SU,RADIUS(I2)*SU,R(IPAIR)*SU,RI,VI
+     &         RADIUS(I1)*SU,RADIUS(I2)*SU,R(IPAIR)*SU,RI,VI,
+     &         R1XY,R1INC,R1PHI,V1XY,V1INC,V1PHI,
+     &         R2XY,R2INC,R2PHI,V2XY,V2INC,V2PHI
   15      FORMAT (/,' END KSREG   TIME[NB]',1P,E17.10,' NM1,2,S=',
      &         3I10,' KW1,2,S=',3I4,' IPAIR',I9,' DTAU',E11.3,
      &         ' M1,2[NB]',2E11.3,' R12[NB]',E11.3,
      &         ' e,a,eb[NB]=',2E12.4,E11.3,' P[d]=',E11.3,' H',E11.3,
      &         ' GAMMA',1P,E11.3,' STEP(ICM)',E11.3,' NPERT',I5,
      &         ' NB(ICM)',I5,' M1,2[*]',2E11.3,' RAD1,2,S[*]',3E11.3,
-     &         ' RI,VI[NB]=',2E11.3)
+     &         ' RCM,VCM[NB]=',2E13.5,
+     &' I1 RXY[NB],i,alp[rad] ',3E13.5,' I1 VXY[NB],i,alp[rad] ',3E13.5,
+     &' I2 RXY[NB],i,alp[rad] ',3E13.5,' I2 VXY[NB],i,alp[rad] ',3E13.5)
 *     --04/15/14 21:40-lwang-debug--------------------------------------*
 ***** Note:------------------------------------------------------------**
 c$$$          if(rank.eq.0.and.name(icm).eq.2567) call abort()

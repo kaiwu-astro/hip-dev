@@ -203,6 +203,23 @@ c$$$      end if
      &              (X(2,NTOT) - RDENS(2))**2 +
      &              (X(3,NTOT) - RDENS(3))**2)
           VII = SQRT(XDOT(1,NTOT)**2+XDOT(2,NTOT)**2+XDOT(3,NTOT)**2)
+*
+          R1XY=SQRT((X(1,ICOMP)-RDENS(1))**2+(X(2,ICOMP)-RDENS(2))**2)
+          R1INC = ATAN((X(3,ICOMP)-RDENS(3))/R1XY)
+          R1PHI = ACOS((X(1,ICOMP)-RDENS(1))/R1XY)
+*
+          R2XY=SQRT((X(1,JCOMP)-RDENS(1))**2+(X(2,JCOMP)-RDENS(2))**2)
+          R2INC = ATAN((X(3,JCOMP)-RDENS(3))/R2XY)
+          R2PHI = ACOS((X(1,JCOMP)-RDENS(1))/R2XY)
+*
+          V1XY = SQRT(XDOT(1,ICOMP)**2+XDOT(2,ICOMP)**2)
+          V1INC = ATAN(XDOT(3,ICOMP)/V1XY)
+          V1PHI = ACOS(XDOT(1,ICOMP)/V1XY)
+*
+          V2XY = SQRT(XDOT(1,JCOMP)**2+XDOT(2,JCOMP)**2)
+          V2INC = ATAN(XDOT(3,JCOMP)/V2XY)
+          V2PHI = ACOS(XDOT(1,JCOMP)/V2XY)
+*
           PD = TWOPI*SEMI*SQRT(DABS(SEMI)/BODY(NTOT))*TSTAR*365.24D6
           if(rank.eq.0)
      &    WRITE (6,60)  TIME+TOFF,NAME(ICOMP),NAME(JCOMP),
@@ -211,14 +228,18 @@ c$$$      end if
      &         R(IPAIR),SQRT(ECC2),SEMI,EB,PD,H(IPAIR),GAMMA(IPAIR),
      &         STEP(NTOT),LIST(1,ICOMP),LIST(1,NTOT),
      &         BODY(ICOMP)*ZMBAR,BODY(JCOMP)*ZMBAR,
-     &         RADIUS(ICOMP)*SU,RADIUS(JCOMP)*SU,R(IPAIR)*SU,RI,VII
+     &         RADIUS(ICOMP)*SU,RADIUS(JCOMP)*SU,R(IPAIR)*SU,RI,VII,
+     &         R1XY,R1INC,R1PHI,V1XY,V1INC,V1PHI,
+     &         R2XY,R2INC,R2PHI,V2XY,V2INC,V2PHI
   60      FORMAT (/,' NEW KSREG   TIME[NB]',1P,E17.10,' NM1,2,S=',
      &         3I10,' KW1,2,S=',3I4,' IPAIR',I9,' DTAU',E11.3,
      &         ' M1,2[NB]',2E11.3,' R12[NB]',E11.3,
      &         ' e,a,eb[NB]=',2E12.4,E11.3,' P[d]=',E11.3,' H',E11.3,
      &         ' GAMMA',1P,E11.3,' STEP(ICM)',E11.3,' NPERT',I5,
      &         ' NB(ICM)',I5,' M1,2[*]',2E11.3,' RAD1,2,S[*]',3E11.3,
-     &         ' RI,VI[NB]=',2E11.3)
+     &         ' RCM,VCM[NB]=',2E13.5,
+     &' I1 RXY[NB],i,alp[rad] ',3E13.5,' I1 VXY[NB],i,alp[rad] ',3E13.5,
+     &' I2 RXY[NB],i,alp[rad] ',3E13.5,' I2 VXY[NB],i,alp[rad] ',3E13.5)
           call flush(6)
 *     --03/15/14 13:20-lwang-debug--------------------------------------*
 ***** Note:------------------------------------------------------------**
