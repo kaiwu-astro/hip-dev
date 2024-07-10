@@ -63,8 +63,8 @@
 *
 *       Check optional sorting of Lagrangian radii & half-mass radius.
       IF (KZ(7).GT.0) THEN
-          CALL LAGR(RDENS)
           CALL lagrNomass(RDENS)
+          CALL LAGR(RDENS)
       END IF
 *     Call Computation of Moments of Inertia (with Chr. Theis)
       IF(KZ(45).GT.0) CALL ELLAN
@@ -328,11 +328,17 @@ C      END IF
       END IF
 
 
-
+*       Call Binary Data Bank for planets
+* FFDSEPT2023: It won't activate if no binaries, which means that it won't take dynamical binary.
+* Consider adding another variable to activate when dynamical recapture comes for an only-ffp system 
+*** Variable is not more used due to being in ELEMNT subroutine in
+*bindat.F -> use krcrit 77 instead of plndat.59
+*      if (nmass.gt.0.and.npairs.gt.0) then
+*        call plndat
+*      end if
 *
 *
-*       See whether to write data bank of binary diagnostics on unit
-*       9.FFD: Planetary systems are calculated in bindat.f
+*       See whether to write data bank of binary diagnostics on unit 9.
       IF (KZ(8).GE.2) THEN
           CALL BINDAT
           IF (KZ(18).GE.4) THEN

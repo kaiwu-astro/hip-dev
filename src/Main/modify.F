@@ -7,8 +7,9 @@
       INCLUDE 'common6.h'
       EXTERNAL VERIFY
       character*1 level
-* FFD Sept2023: added NOMASS in ININPUT NAMELIST and where needed
-       NAMELIST /ININPUT/ N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM, NOMASS
+* FFD Sept2023: added NMASS in ININPUT NAMELIST and where needed
+       NAMELIST /ININPUT/ N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM, 
+     &    nmass,
      &    ETAI, ETAR, RS0, DTADJ, DELTAT, TCRIT,QE, RBAR, ZMBAR,
      &    KZ, DTMIN, RMIN, ETAU, ECLOSE, GMIN, GMAX, SMAX, LEVEL
 *
@@ -28,7 +29,29 @@
       ETAICURR0 = ETAI
       ETARCURR0 = ETAR
       ETAUCURR0 = ETAU
-
+      NNO = 0
+      NMA = 0
+      smallMass= 1.e-10
+*
+*     check number of massless particles in restart data
+      DO I = 1,N
+          IF(BODY(I).LE.smallMass)THEN
+               nomass(i) = 1
+               NNO = NNO + 1
+          ELSE
+               nomass(i) = 0
+               NMA = NMA + 1
+          ENDIF 
+      ENDDO    
+* changed nmass as not taken from mydump, here it is taken according to
+* the restarting point number of massless object (massive particles is
+* displayed for checking the correctness). nmass print is for debug
+      if(rank.eq.0)then
+      print*,"Number of massless particles:", NNO
+      print*,"Number of massive  particles:", NMA
+      print*,"nmass actual value", nmass
+      nmass=NNO
+      end if
 *
       if(rank.eq.0)then
           READ (NML=ININPUT, IOSTAT=IIC, UNIT=5)
@@ -97,8 +120,9 @@
  11      FORMAT (/,' START AT TTOT/TIME ',2F16.8,' STOP INTENDED AT ',
      &            F16.8,' TCR0',/,' START AT TTOT/TIME ',2F16.8,
      &            ' STOP INTENDED AT ',F16.8,' NBODY-UNITS ',/)
-*
-         WRITE (6,12)  N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM, NOMASS
+*       Mydump not working with massless yet, I redifine here NNO as
+*       nmass
+         WRITE (6,12)  N, NFIX, NCRIT, NRAND, NNBOPT, NRUN, NCOMM, nmass
    12    FORMAT (/,I16,I6,2I7,I8,2I6,2I6)
 *       Note that RBAR and ZMBAR should be taken from original data read by mydump.
          WRITE(6,15)
@@ -134,7 +158,7 @@
       CALL MPI_BCAST(NNBOPT,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
       CALL MPI_BCAST(NRUN,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
       CALL MPI_BCAST(NCOMM,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
-      CALL MPI_BCAST(NOMASS,1,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
+*     CALL MPI_BCAST(nmass,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
 
 *
       CALL MPI_BCAST(KZ(1),50,MPI_INTEGER,0,MPI_COMM_WORLD,ierr)
