@@ -3,31 +3,16 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT([Nbody6++], [1.0], [longwang.astro@gmail.com])
-#AC_CONFIG_MACRO_DIR([./macro])
+AC_INIT([Nbody6++GPU-beijing], [Nov2024-hip], [spurzem@nao.cas.cn, kaiwu.astro@gmail.com])
+
 m4_include([macro/ax_check_compile_flag.m4])
 m4_include([macro/ax_fc_check_bounds.m4])
-#m4_include([macro/ax_check_cuda.m4])
-#AC_CONFIG_SRCDIR([helper_cuda.h])
+
+#AC_CONFIG_SRCDIR([helper_cuda.h.hip])
 
 RESULT=
 EXTRASRC=
 EXTRAOBJ=
-
-#Save environment
-##AC_ARG_ENABLE([local-env],
-##   [AS_HELP_STRING([--enable-local-env],
-##        [Use local environment listed in last part instead of configure])],
-##   [],
-##   [enable_local_env=no])
-
-##AS_IF([test "x$enable_local_env" != xno ],
-##     [AS_IF([test "x$FC" != x], [local_fc=$FC])
-##      AS_IF([test "x$FCFLAGS" != x], [local_fcflags=$FCFLAGS])
-##      AS_IF([test "x$CXXFLAGS" != x], [local_cxxflags=$CXXFLAGS])],
-##    [local_fc=
-##     local_fcflags=
-##     local_cxxflags=])
 
 #Features controls
 AC_ARG_ENABLE([mpi],
@@ -38,15 +23,15 @@ AC_ARG_ENABLE([mpi],
 
 AC_ARG_ENABLE([mcmodel],
      [AS_HELP_STRING([--enable-mcmodel=ARG],
-         [Use compiler option -mcmodel, avaiable arguments --> small; -->medium; -->large
-          (defalut is medium)])],
+         [Use compiler option -mcmodel, avaiable arguments --> small; -->large; -->large
+          (defalut is large)])],
      [ case "${enableval}" in
        large) enable_mcmodel=large ;;
        medium) enable_mcmodel=medium ;;
        small) enable_mcmodel=small ;;
        *) AC_MSG_ERROR(bad value ${enableval} for --enable-mcmodel) ;;
        esac],
-     [enable_mcmodel=medium])
+     [enable_mcmodel=large])
 
 AC_ARG_ENABLE([debug],
      [AS_HELP_STRING([--enable-debug],
@@ -82,12 +67,6 @@ AC_ARG_ENABLE([tt],
          [Enable tidal tensor and analytical potential extension imported from NBODY6TT. (Ref: Renaud, F., et al., 2011, MNRAS, 418, 759; Renaud, F. & Gieles, M., 2015, MNRAS, 448, 3416)])],
      [],
      [enable_tt=no])
-
-AC_ARG_ENABLE([tools],
-    [AS_HELP_STRING([--enable-tools],
-         [Compile extral tools for data analysis, see User_manual.pdf for detail])],
-    [enable_tools=yes],
-    [enable_tools=no])
 
 # Checks for programs.
 # Fortran part
@@ -153,10 +132,6 @@ AS_IF([test "x$FC" == xnone],
             [Fortran compiler not found, please intall it and check environment PATH])])])])
 
 
-# FIXME: Replace `main' with a function in `-lmpi':
-# AC_CHECK_LIB([mpi], [main])
-
-
 #C++ part
 AC_LANG([C++])
 local_cxxflags=$CXXFLAGS
@@ -165,9 +140,6 @@ AC_PROG_CC
 
 AC_CHECK_LIB([stdc++],[main],[LIBS=$LIBS' -lstdc++'])
 
-#AS_IF([test "x$enable_debug" != xno],
-#      [CXXFLAGS=$local_cxxflags" -O2"],
-#      [CXXFLAGS=$local_cxxflags" -O3"])
 CXXFLAGS=$local_cxxflags" -O3"
 
 AC_OPENMP
@@ -247,13 +219,6 @@ AS_IF([test "x$OPENMP_CXXFLAGS" != x],
                      [$CXX compiler option -m$enable_simd is not avaiable])])])])],
      enable_simd=no
      SIMD_CHECK=-2)
-
-# FIXME: Replace `main' with a function in `-llvisit':
-# AC_CHECK_LIB([lvisit], [main])
-# FIXME: Replace `main' with a function in `-llvisit_nbody':
-# AC_CHECK_LIB([lvisit_nbody], [main])
-# FIXME: Replace `main' with a function in `-lvisit':
-# AC_CHECK_LIB([visit], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h strings.h sys/time.h unistd.h])
@@ -375,9 +340,9 @@ AS_IF([test "x$enable_debug" != xno],
 # params.h
 AC_ARG_WITH([par], 
      [AS_HELP_STRING([--with-par=size],
-         [Size of basic parameters (NMAX, KMAX, LMAX, MMAX) in params.h. Avaiable values: 1m, 512k, 256k, 128k, 64k, 32k, 16k, 8k, custom. The value of this size is NMAX, with prefix 'b' the K.S. binary size KMAX is half of NMAX and NMAX is set to 1.5*NMAX. LMAX is 600 above 64k, 500 above 16k. MMAX is 1024 above 64k, 512 above 16k. MMAX is doubled with prefix 'b'. Defaultsize is b16k])],
+         [Size of basic parameters (NMAX, KMAX, LMAX, MMAX) in params.h. Avaiable values: 10m, 8m, 4m, 1m, 512k, 256k, 128k, 64k, 32k, 16k, 8k, custom. The value of this size is NMAX, with prefix 'b' the K.S. binary size KMAX is half of NMAX and NMAX is set to 1.5*NMAX. LMAX is 600 above 64k, 500 above 16k. MMAX is 1024 above 64k, 512 above 16k. MMAX is doubled with prefix 'b'. Defaultsize is b1m])],
      [par_size=$withval],
-     [par_size=b16k])
+     [par_size=b1m])
 
 AS_IF([test "x$par_size" == x10m],
       [NMAX=11048576
@@ -563,7 +528,6 @@ AC_MSG_NOTICE([     Fortran compiler:  $FC])
 AC_MSG_NOTICE([     HIP compiler:      $HIPCC])
 AC_MSG_NOTICE([--Targets:])
 AC_MSG_NOTICE([     Program name:   nbody6++$RESULT])
-AC_MSG_NOTICE([     Extra tools:    $enable_tools])
 AC_MSG_NOTICE([     Install path:   $prefix])
 AC_MSG_NOTICE([--Parameters:])
 AC_MSG_NOTICE([     NMAX:           $NMAX])
@@ -571,13 +535,9 @@ AC_MSG_NOTICE([     KMAX:           $KMAX])
 AC_MSG_NOTICE([     LMAX:           $LMAX])
 AC_MSG_NOTICE([     MMAX:           $MMAX])
 AC_MSG_NOTICE([-----------------------------------------------------------])
-AS_IF([test "x$enable_tools" != xno],
-   [AC_MSG_NOTICE([  Please add $prefix/lib into your runtime load library path:])
-    AC_MSG_NOTICE([     LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:$prefix/lib])
-    AC_MSG_NOTICE([  in your pre-configure script of shell (such as ~/.bashrc if you use bash)])
-    AC_MSG_NOTICE([-----------------------------------------------------------])])
 AC_MSG_NOTICE([Reference paper: Wang, L., et al., 2015, MNRAS, 450, 4070 (http://arxiv.org/abs/1504.03687)])
-AC_MSG_NOTICE([Email: Long Wang<longwang.astro@gmail.com>])
+AC_MSG_NOTICE([Email: Rainer Spurzem<spurzem@nao.cas.cn>])
+AC_MSG_NOTICE([Check updates or ask anything in https://github.com/nbody6ppgpu/Nbody6PPGPU-beijing])
 AC_MSG_NOTICE([-----------------------------------------------------------])
 
 AC_CONFIG_FILES([Makefile build/Makefile include/params.h])
