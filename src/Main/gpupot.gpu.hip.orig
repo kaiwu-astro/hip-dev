@@ -40,7 +40,7 @@ __global__ void pot_kernel(int n, int istart, Particle *ptcl, float2 *phi){
 		__syncthreads();
 		jpbuf[threadIdx.x] = ptcl[j + threadIdx.x];
 		__syncthreads();
-//#pragma unroll 4
+#pragma unroll 4
 		for(int jj=0; jj<NTHREAD; jj++){
 			// if(j+jj == i) continue;
 			Particle &jp = jpbuf[jj];
