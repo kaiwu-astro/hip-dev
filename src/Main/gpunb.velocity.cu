@@ -1,3 +1,4 @@
+#include "mpi.h"
 #include <cmath>
 #include <stdio.h>
 #include <unistd.h>
@@ -283,14 +284,14 @@ __global__ void gravity_kernel(
 		dst[tid] = src[tid];
 		__syncthreads();
 		if(jend-j < 32){
-#pragma unroll 4
+//#pragma unroll 4
 			for(int jj=0; jj<jend-j; jj++){
 				const Jparticle jp = jpshare[jj];
 				// const Jparticle jp( (float4 *)jpshare + 2*jj);
 				dev_gravity(j-jstart+jj, ip, jp, fo, nblist);
 			}
 		}else{
-#pragma unroll 8
+//#pragma unroll 8
 			for(int jj=0; jj<32; jj++){
 				const Jparticle jp = jpshare[jj];
 				// const Jparticle jp( (float4 *)jpshare + 2*jj);
@@ -309,13 +310,13 @@ __global__ void gravity_kernel(
 		__syncthreads();
 
 		if(jend-j < NTHREAD){
-#pragma unroll 4
+//#pragma unroll 4
 			for(int jj=0; jj<jend-j; jj++){
 				Jparticle jp = jpshare[jj];
 				dev_gravity(j-jstart+jj, ip, jp, fo, nblist);
 			}
 		}else{
-#pragma unroll 8
+//#pragma unroll 8
 			for(int jj=0; jj<NTHREAD; jj++){
 				Jparticle jp = jpshare[jj];
 				dev_gravity(j-jstart+jj, ip, jp, fo, nblist);
@@ -354,14 +355,14 @@ __global__ void gravity_kernel_m(
 		dst[tid] = src[tid];
 		__syncthreads();
 		if(jend-j < 32){
-#pragma unroll 4
+//#pragma unroll 4
 			for(int jj=0; jj<jend-j; jj++){
 				const Jparticle jp = jpshare[jj];
 				// const Jparticle jp( (float4 *)jpshare + 2*jj);
 				dev_gravity_m(j-jstart+jj, ip, jp, fo, nblist);
 			}
 		}else{
-#pragma unroll 8
+//#pragma unroll 8
 			for(int jj=0; jj<32; jj++){
 				const Jparticle jp = jpshare[jj];
 				// const Jparticle jp( (float4 *)jpshare + 2*jj);
@@ -380,13 +381,13 @@ __global__ void gravity_kernel_m(
 		__syncthreads();
 
 		if(jend-j < NTHREAD){
-#pragma unroll 4
+//#pragma unroll 4
 			for(int jj=0; jj<jend-j; jj++){
 				Jparticle jp = jpshare[jj];
 				dev_gravity_m(j-jstart+jj, ip, jp, fo, nblist);
 			}
 		}else{
-#pragma unroll 8
+//#pragma unroll 8
 			for(int jj=0; jj<NTHREAD; jj++){
 				Jparticle jp = jpshare[jj];
 				dev_gravity_m(j-jstart+jj, ip, jp, fo, nblist);
@@ -456,7 +457,7 @@ __global__ void force_reduce_kernel(
 		f.clear();
 	}
 # if 0
-# pragma unroll
+//# pragma unroll
 	for(int mask=1; mask<NXREDUCE; mask*=2){
 		f.reduce_with(mask);
 	}
@@ -519,7 +520,7 @@ __global__ void gather_nb_kernel(
 	// now performe prefix sum
 #if __CUDA_ARCH__ >= 4000000
 	int ix = mynnb;
-#pragma unroll
+//#pragma unroll
 	for(int ioff=1; ioff<NXREDUCE; ioff*=2){
 		int iy = __shfl_up(ix, ioff);
 		if(xid>=ioff) ix += iy;
@@ -577,8 +578,15 @@ void GPUNB_devinit(int irank){
 
 	assert(NXREDUCE >= NJBLOCK);
 	assert(NXREDUCE <= 32);
+        int rank;int size;
+   	 MPI_Comm_size( MPI_COMM_WORLD, &size );
+ 	 MPI_Comm_rank( MPI_COMM_WORLD, &rank );
 
 	cudaGetDeviceCount(&numGPU);
+        assert(numGPU <= size);
+
+        numGPU = 1;
+
 	assert(numGPU <= MAX_GPU);
 	char *gpu_list = getenv("GPU_LIST");
 	if(gpu_list){
@@ -593,21 +601,23 @@ void GPUNB_devinit(int irank){
 	}else{
 		// use all GPUs
 		for(int i=0; i<numGPU; i++){
-			devid[i] = i;
+			devid[rank] = rank ;
+//			devid[i] = i;
 		}
 	}
 	
-	// numGPU = 1;
-#pragma omp parallel
+//#pragma omp parallel
 	{
-		int tid = omp_get_thread_num();
+                int tid = 0;
+//		int tid = omp_get_thread_num();
 		if(tid == 0) numCPU = omp_get_num_threads();
 	}
 	assert(numCPU <= MAX_CPU);
 //      assert(numGPU <= numCPU);
-#pragma omp parallel
+//#pragma omp parallel
 	{
-		int tid = omp_get_thread_num();
+		int tid = 0;
+//		int tid = omp_get_thread_num();
 		if(tid < numGPU){
 			cudaSetDevice(devid[tid]);
 		}
@@ -646,9 +656,10 @@ void GPUNB_open(int nbmax,int irank){
 	}
 
 	// omp_set_num_threads(numGPU);
-#pragma omp parallel
+//#pragma omp parallel
 	{
-		int tid = omp_get_thread_num();
+		int tid = 0;
+//		int tid = omp_get_thread_num();
 		if(tid < numGPU){
 			cudaSetDevice(devid[tid]);
 			int nj = joff[tid+1] - joff[tid];
@@ -673,9 +684,10 @@ void GPUNB_close(){
 	}
 	is_open = false;
 	// omp_set_num_threads(numGPU);
-#pragma omp parallel
+//#pragma omp parallel
 	{
-		int tid = omp_get_thread_num();
+		int tid = 0;
+//		int tid = omp_get_thread_num();
 		if(tid < numGPU){
 			jpbuf [tid].free();
 			ipbuf [tid].free();
@@ -714,9 +726,10 @@ void GPUNB_send(
 	for(int id=0; id<numGPU + 1; id++){
 		joff[id] = (id * nbody) / numGPU;
 	}
-#pragma omp parallel
+//#pragma omp parallel
 	{
-		int tid = omp_get_thread_num();
+		int tid = 0;
+//		int tid = omp_get_thread_num();
 		if(tid < numGPU){
 			int nj = joff[tid+1] - joff[tid];
 			for(int j=0; j<nj; j++){
@@ -751,11 +764,12 @@ void GPUNB_regf(
 	assert(0 < ni && ni <= NIMAX);
 
 	// omp_set_num_threads(numGPU);
-#pragma omp parallel
+//#pragma omp parallel
 	{
-		int tid = omp_get_thread_num();
+		int tid = 0;
+//		int tid = omp_get_thread_num();
 		if(tid < numGPU){
-			// cudaSetDevice(device_id[tid]);
+			cudaSetDevice(devid[tid]);
 			for(int i=0; i<ni; i++){
 				ipbuf[tid][i] = Iparticle(h2[i], dtr[i], xi[i], vi[i]);
 			}
@@ -820,7 +834,7 @@ void GPUNB_regf(
 
 	// reduction phase
 	// omp_set_num_threads(numCPU);
-#pragma omp parallel for default(none) shared(acc,jrk,pot,ni,numGPU,ftot)
+//#pragma omp parallel for default(none) shared(acc,jrk,pot,ni,numGPU,ftot)
 	for(int i=0; i<ni; i++){
 		double ax=0.0, ay=0.0, az=0.0;
 		double jx=0.0, jy=0.0, jz=0.0;
@@ -844,7 +858,7 @@ void GPUNB_regf(
 		jrk[i][2] = jz;
 		pot[i]    = po;
 	}
-#pragma omp parallel for default(none) shared(ni,numGPU,ftot,listbase,nnbmax,nblist,lmax,nboff)
+//#pragma omp parallel for default(none) shared(ni,numGPU,ftot,listbase,nnbmax,nblist,lmax,nboff)
 	for(int i=0; i<ni; i++){
 		bool overflow = false;
 		int *nnbp = listbase + lmax * i;
