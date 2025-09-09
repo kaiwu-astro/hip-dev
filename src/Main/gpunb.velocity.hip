@@ -6,13 +6,8 @@
 #include <cassert>
 #include <cstdlib>
 #include <omp.h>
-#if 1
-#  include <helper_cuda.h.hip>
-#  include "checkHipError.hip"
-
-#else
-#  include <cutil.h.hip>
-#endif
+#include <hip/hip_runtime_api.h>
+#include "checkHipError.hip"
 #include "cuda_pointer.h.hip"
 //#include "cuda_share.h.hip"
 
@@ -144,7 +139,7 @@ struct Force{
           nnb = -abs(nnb) - abs(rhs.nnb);
 		}
 	}
-#if 1
+#if 0
 	__device__ void reduce_with(const int mask){
 		acc.x += __shfl_xor(acc.x, mask);
 		acc.y += __shfl_xor(acc.y, mask);
@@ -277,7 +272,7 @@ __global__ void gravity_kernel(
 	Force fo;
 	fo.clear();
 	uint16 *nblist = nbbuf[iaddr][jbid];
-#if 1 // just some trial
+#if 0 // just some trial
 	for(int j=jstart; j<jend; j+=32){
 		__shared__ Jparticle jpshare[32];
 		__syncthreads();
@@ -348,7 +343,7 @@ __global__ void gravity_kernel_m(
 	Force fo;
 	fo.clear();
 	uint16 *nblist = nbbuf[iaddr][jbid];
-#if 1 // just some trial
+#if 0 // just some trial
 	for(int j=jstart; j<jend; j+=32){
 		__shared__ Jparticle jpshare[32];
 		__syncthreads();
@@ -401,7 +396,7 @@ __global__ void gravity_kernel_m(
 	fobuf[iaddr][jbid] = fo;
 }
 
-#if 1
+#if 0
 __device__ void warp_reduce_int(int inp, int *out){
 	inp += __shfl_xor(inp, 1);
 	inp += __shfl_xor(inp, 2);
@@ -451,7 +446,7 @@ __global__ void force_reduce_kernel(
 	const int bid = blockIdx.x;
 	const int iaddr = yid + blockDim.y * bid;
 
-#if 1
+#if 0
 	Force f;
 	if(xid < NJBLOCK){
 		f = fpart[iaddr][xid];
@@ -520,7 +515,7 @@ __global__ void gather_nb_kernel(
 	                                  : 0;
 
 	// now performe prefix sum
-#if 1
+#if 0
 	int ix = mynnb;
 //#pragma unroll
 	for(int ioff=1; ioff<NXREDUCE; ioff*=2){
