@@ -6,21 +6,20 @@
 
 ## 1. 项目概述
 
-**NBODY6++GPU** 是一个用于天体物理数值模拟的 N 体星团演化代码，由 Rainer Spurzem 团队维护（北京版本）。
+**NBODY6++GPU** 是一个用于天体物理数值模拟的 N 体星团演化代码，由 Rainer Spurzem 团队维护。
 
 ### 核心特性
-- **直接 N 体积分**：使用 Hermite 积分方案和分块时间步
+- **直接 N 体积分**：使用 Hermite Scheme 和 Block time step
 - **GPU 加速**：利用 CUDA 进行规则力和势能计算
 - **混合并行化**：MPI + OpenMP + GPU + SIMD (SSE/AVX)
 - **恒星演化**：SSE/BSE 模型，包含质量损失、合并、潮汐效应
 - **双星物理**：KS 正则化、公共包层演化、引力波反冲
-- **银河系环境**：MWPotential2014 势场模拟
-- **灵活输出**：支持 HDF5 和二进制格式，包含 Python 读取接口
+- **星系环境**：模拟星团受绕转星系的潮汐力，包括多种可选模型
+- **灵活输出**：支持 HDF5 / 二进制 / ANSI 格式，包含较少的 Python 读取接口
 
 ### 适用规模
-- **粒子数**：50,000 - 15,000,000 颗恒星
+- **粒子数**：任意
 - **最佳性能**：N > 50,000（GPU 加速生效）
-- **最大配置**：15.1M 粒子，5.1M 双星对，1024 MPI 进程
 
 ### 科学应用
 - 球状星团演化
@@ -67,7 +66,7 @@ nbody-fork/
 
 | 语言 | 用途 | 文件数量 | 关键文件 |
 |------|------|----------|----------|
-| **Fortran 77/90/95** | 核心 N 体积分、恒星演化 | ~400+ | `nbody6.F`, `intgrt.F`, `setup.F`, `hrplot.F` |
+| **Fortran 77** | 核心 N 体积分、恒星演化 | ~400+ | `nbody6.F`, `intgrt.F`, `setup.F`, `hrplot.F` |
 | **CUDA C++** | GPU 加速力计算 | 3 | `gpunb.gpu.cu`, `gpupot.gpu.cu`, `gpunb.velocity.cu` |
 | **C++** | SIMD 矢量化 (SSE/AVX) | ~15 | `pot.sse.cpp`, `reg.avx.cpp`, `irr.sse.cpp` |
 | **Python** | 数据分析、输入转换 | ~5 | Jupyter 笔记本, `restore_mtime.py` |
@@ -78,7 +77,7 @@ nbody-fork/
 - **编译器**: GNU Fortran (gfortran), NVCC (CUDA), g++ (C++)
 - **并行库**: OpenMPI, OpenMP
 - **GPU 框架**: CUDA 10.0+
-- **数据格式**: HDF5, 二进制
+- **数据格式**: HDF5, 二进制, 纯文本
 - **版本控制**: Git
 
 ---
@@ -127,10 +126,9 @@ nbody-fork/
 ### 4.6 输入/输出
 | 类型 | 文件 | 格式 |
 |------|------|------|
-| **标准输出** | `output.F` | 二进制 NBODY6 格式 |
-| **自定义输出** | `custom_output.F`, `custom_output_facility.F` | 用户定义输出 |
-| **HDF5 输出** | `output.F` (HDF5 分支) | HDF5 快照文件 |
-| **诊断输出** | `energy.F`, `lagr.f`, `binout.f` | 能量、拉格朗日半径、双星统计 |
+| **标准输出** | `output.F` | 纯文本或fortran二进制格式 |
+| **HDF5 输出** | `custom_output.F`, `custom_output_facility.F` | HDF5 快照文件 |
+| **诊断输出** | `energy.F`, `lagr.f`, `binout.f`, `stdout` | 能量、拉格朗日半径、双星统计 |
 
 ---
 
@@ -158,11 +156,11 @@ nbody-fork/
 #### 快速开始配置
 
 ```bash
-# 个人电脑测试（无GPU）
-./configure --enable-mcmodel=large --with-par=b1m --disable-gpu
+# 个人电脑测试（无GPU，无需MPI）
+./configure --enable-mcmodel=large --with-par=b1m --disable-gpu --disable-mpi
 
-# 超算生产环境（带GPU）
-./configure --enable-mcmodel=large --with-par=b1m --enable-simd=avx
+# 典型生产环境
+./configure --enable-mcmodel=large --with-par=b1m
 ```
 
 ### 5.2 编译
@@ -213,22 +211,17 @@ git clone -b dev https://github.com/nbody6ppgpu/Nbody6PPGPU-beijing
    - GPU 代码：`.cu` 文件
    - SIMD 代码：`.cpp` 文件
 
-3. **恢复文件修改时间**（如需）
-   ```bash
-   python3 restore_mtime.py
-   ```
-
-4. **重新配置和编译**
+3. **重新配置和编译**
    ```bash
    ./configure [选项]
    make clean && make -j
    ```
 
-5. **测试**
+4. **测试**
    - 使用 `examples/input_files/N10k_noDat10.inp` 快速测试
    - 检查输出文件完整性
 
-6. **提交代码**
+5. **提交代码**
    ```bash
    git add .
    git commit -m "描述性的提交信息"
@@ -303,14 +296,7 @@ cp examples/input_files/N10k_noDat10.inp ./
 
 ### 7.4 数据分析
 
-使用 Jupyter 笔记本分析输出：
-
-```bash
-cd examples/
-jupyter notebook
-```
-
-可用笔记本：
+使用 Jupyter 笔记本分析输出。可用笔记本：
 - `01_Basics.ipynb` - 基础数据读取
 - `02_Hertzsprung–Russell_diagram.ipynb` - HR 图绘制
 - `03_HDF5_Basics.ipynb` - HDF5 文件处理
@@ -339,7 +325,7 @@ jupyter notebook
 
 ### 9.1 Fortran 代码规范
 
-- **格式**: Fortran 77 固定格式（6 列缩进）或 Fortran 90 自由格式
+- **格式**: Fortran 77 固定格式（6 列缩进）或 极少数文件使用 Fortran 90 自由格式
 - **大小写**: 混合使用（历史代码为大写，新代码可用小写）
 - **注释**: 使用 `C` 或 `!` 开头
 - **公共块**: 通过 `COMMON` 块共享变量（见 `include/common6.h`）
@@ -402,31 +388,13 @@ jupyter notebook
 | 恒星演化更新 | Kamlah et al. 2022 | [2022MNRAS.511.4060K](https://ui.adsabs.harvard.edu/abs/2022MNRAS.511.4060K/) |
 
 ### 相关工具
+- **dragon3_pipeline**: [完整的、大量的数据分析Python脚本（建设中）](https://github.com/kaiwu-astro/dragon3_pipeline)
 - **McLuster**: [初始条件生成器](https://github.com/agostinolev/mcluster)
 - **Galpy**: [银河系势场库](https://github.com/jobovy/galpy)
-- **PeTar**: [Long Wang 的分析工具](https://github.com/lwang-astro/PeTar)
 
 ---
 
-## 11. 联系方式
-
-### 维护者
-- **Rainer Spurzem**: spurzem@nao.cas.cn, spurzem@ari.uni-heidelberg.de
-- **Long Wang**: longwang.astro@live.com (LW 版本)
-
-### 版本差异
-- **RS 版本** (本仓库): GW 反冲、HDF5 输出、Namelist 输入、MWPotential2014
-- **LW 版本**: PeTar 接口、不同的 MWPotential 实现
-
-### 获取帮助
-1. 查阅 [GitHub Discussions](https://github.com/nbody6ppgpu/Nbody6PPGPU-beijing/discussions)
-2. 查看 [Overleaf 手册](https://www.overleaf.com/read/hcmxcyffjkzq)
-3. 提交 GitHub Issue
-4. 联系维护者
-
----
-
-## 12. 已知问题
+## 11. 已知问题
 
 | 问题 | 状态 | 解决方案 |
 |------|------|----------|
@@ -436,47 +404,6 @@ jupyter notebook
 | 许多参数编译时硬编码 | 改进中 | 将来使用完整 Namelist 输入 |
 | `KZ(7) >= 4` 输出错误 | 已知 | 使用 `KZ(7) <= 3` |
 | HDF5 配置选项失效 | 已知 | 手动编辑 `build/Makefile` |
-
----
-
-## 13. 贡献指南
-
-### 如何贡献
-
-1. **Fork 仓库**
-   ```bash
-   git clone -b dev git@github.com:nbody6ppgpu/Nbody6PPGPU-beijing
-   ```
-
-2. **创建特性分支**
-   ```bash
-   git checkout -b feature/your-improvement
-   ```
-
-3. **开发和测试**
-   - 遵循现有代码风格
-   - 添加注释说明复杂逻辑
-   - 测试至少在 N=10k 示例上通过
-
-4. **提交 Pull Request**
-   - 清晰描述改动内容
-   - 说明测试方法和结果
-   - 链接相关 Issue
-
-### 优先级任务
-- 改进多 GPU 支持
-- 优化大双星比例性能
-- 扩展 Namelist 输入覆盖所有参数
-- 改进文档和示例
-- Bug 修复
-
----
-
-## 14. 许可和免责声明
-
-> 本代码和文档不提供任何保证，希望它有所帮助。所有内容可能包含错误。
-
-代码基于 Sverre Aarseth 的直接 N 体代码演化而来，继承了数十年的天体物理模拟经验。
 
 ---
 
