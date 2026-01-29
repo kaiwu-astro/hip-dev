@@ -182,6 +182,9 @@ __device__ void h4_kernel(
 	float mrinv3 = mrinv1 * rinv2;
 	rv *= -3.f * rinv2;
 	
+	NAN_CHECK(mrinv3);
+	NAN_CHECK(rv);
+
 #ifdef POTENTIAL
 	fo.pot += mrinv1;
 #endif
@@ -192,6 +195,13 @@ __device__ void h4_kernel(
 	fo.jrk.x += mrinv3 * (dvx + rv * dx);
 	fo.jrk.y += mrinv3 * (dvy + rv * dy);
 	fo.jrk.z += mrinv3 * (dvz + rv * dz);
+
+	NAN_CHECK(fo.acc.x);
+	NAN_CHECK(fo.acc.y);
+	NAN_CHECK(fo.acc.z);
+	NAN_CHECK(fo.jrk.x);
+	NAN_CHECK(fo.jrk.y);
+	NAN_CHECK(fo.jrk.z);
 }
 
 //Use mass ratio as the factor to determine neighbor membership
@@ -228,6 +238,9 @@ __device__ void h4_kernel_m(
 	float mrinv1 = jp.mass * rinv1;
 	float mrinv3 = mrinv1 * rinv2;
 	rv *= -3.f * rinv2;
+
+	NAN_CHECK(mrinv3);
+	NAN_CHECK(rv);
 	
 #ifdef POTENTIAL
 	fo.pot += mrinv1;
@@ -239,6 +252,13 @@ __device__ void h4_kernel_m(
 	fo.jrk.x += mrinv3 * (dvx + rv * dx);
 	fo.jrk.y += mrinv3 * (dvy + rv * dy);
 	fo.jrk.z += mrinv3 * (dvz + rv * dz);
+
+	NAN_CHECK(fo.acc.x);
+	NAN_CHECK(fo.acc.y);
+	NAN_CHECK(fo.acc.z);
+	NAN_CHECK(fo.jrk.x);
+	NAN_CHECK(fo.jrk.y);
+	NAN_CHECK(fo.jrk.z);
 }
 
 __global__ void h4_gravity(

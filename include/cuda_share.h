@@ -43,6 +43,7 @@ struct Jparticle{
 };
 
 static float2 float2_split(double x){
+	NAN_CHECK(x);
 	const int shift = 20;
 	float2 ret;
 	x *= (1<<shift);
@@ -54,6 +55,9 @@ static float2 float2_split(double x){
 }
 
 static __device__ float2 float2_accum(float2 acc, float x){
+  NAN_CHECK(acc.x);
+  NAN_CHECK(acc.y);
+  NAN_CHECK(x);
   float tmp = acc.x + x;
   acc.y -= (tmp - acc.x) - x;
   acc.x = tmp;
@@ -61,6 +65,8 @@ static __device__ float2 float2_accum(float2 acc, float x){
 }
 
 static  __device__ float2 float2_regularize(float2 acc){
+  NAN_CHECK(acc.x);
+  NAN_CHECK(acc.y);
   float tmp = acc.x + acc.y;
   acc.y = acc.y -(tmp - acc.x);
   acc.x = tmp;
@@ -68,6 +74,10 @@ static  __device__ float2 float2_regularize(float2 acc){
 }
 
 static __device__ float2 float2_add(float2 a, float2 b){
+  NAN_CHECK(a.x);
+  NAN_CHECK(a.y);
+  NAN_CHECK(b.x);
+  NAN_CHECK(b.y);
   float tmp = a.x + b.x;
   a.y -= (tmp - a.x) - b.x - b.y;
   a.x = tmp;

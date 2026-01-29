@@ -89,6 +89,14 @@ struct Jparticle{
 		vel.x = tmp2.x;
 		vel.y = tmp2.y;
 		vel.z = tmp2.z;
+
+		NAN_CHECK(pos.x);
+		NAN_CHECK(pos.y);
+		NAN_CHECK(pos.z);
+		NAN_CHECK(mass);
+		NAN_CHECK(vel.x);
+		NAN_CHECK(vel.y);
+		NAN_CHECK(vel.z);
 	}
 };
 struct Iparticle{
@@ -196,6 +204,9 @@ __device__ void dev_gravity(
 	float mrinv3 = mrinv1 * rinv2;
 	rv *= -3.f * rinv2;
 	
+	NAN_CHECK(mrinv3);
+	NAN_CHECK(rv);
+
 #ifdef POTENTIAL
 	fo.pot += mrinv1;
 #endif
@@ -206,6 +217,13 @@ __device__ void dev_gravity(
 	fo.jrk.x += mrinv3 * (dvx + rv * dx);
 	fo.jrk.y += mrinv3 * (dvy + rv * dy);
 	fo.jrk.z += mrinv3 * (dvz + rv * dz);
+
+	NAN_CHECK(fo.acc.x);
+	NAN_CHECK(fo.acc.y);
+	NAN_CHECK(fo.acc.z);
+	NAN_CHECK(fo.jrk.x);
+	NAN_CHECK(fo.jrk.y);
+	NAN_CHECK(fo.jrk.z);
 }
 
 //Use mass ratio as the factor to determine neighbor membership
@@ -244,6 +262,9 @@ __device__ void dev_gravity_m(
 	float mrinv1 = jp.mass * rinv1;
 	float mrinv3 = mrinv1 * rinv2;
 	rv *= -3.f * rinv2;
+
+	NAN_CHECK(mrinv3);
+	NAN_CHECK(rv);
 	
 #ifdef POTENTIAL
 	fo.pot += mrinv1;
@@ -255,6 +276,13 @@ __device__ void dev_gravity_m(
 	fo.jrk.x += mrinv3 * (dvx + rv * dx);
 	fo.jrk.y += mrinv3 * (dvy + rv * dy);
 	fo.jrk.z += mrinv3 * (dvz + rv * dz);
+
+	NAN_CHECK(fo.acc.x);
+	NAN_CHECK(fo.acc.y);
+	NAN_CHECK(fo.acc.z);
+	NAN_CHECK(fo.jrk.x);
+	NAN_CHECK(fo.jrk.y);
+	NAN_CHECK(fo.jrk.z);
 }
 
 __global__ void gravity_kernel(
